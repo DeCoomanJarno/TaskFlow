@@ -1,0 +1,399 @@
+.project-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ============================================
+// HEADER
+// ============================================
+
+.project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1rem 1rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.add-project-btn {
+  width: 40px !important;
+  height: 40px !important;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+  transition: all 0.3s ease !important;
+  
+  mat-icon {
+    color: white;
+  }
+  
+  &:hover {
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ============================================
+// PROJECT ITEMS
+// ============================================
+
+.project-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(241, 245, 249, 0.5);
+  border: 2px solid transparent;
+  position: relative;
+
+  &:hover {
+    transform: translateX(4px);
+    background: rgba(241, 245, 249, 0.8);
+    
+    .project-actions {
+      opacity: 1;
+    }
+  }
+
+  &.selected {
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.15),
+      rgba(139, 92, 246, 0.15)
+    );
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 12px 0 0 12px;
+    }
+  }
+
+  &.inactive {
+    opacity: 0.6;
+    cursor: default;
+    background: rgba(241, 245, 249, 0.3);
+
+    &:hover {
+      transform: none;
+      background: rgba(241, 245, 249, 0.3);
+    }
+  }
+}
+
+// ============================================
+// PROJECT ICON
+// ============================================
+
+.project-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  
+  mat-icon {
+    color: var(--accent-blue);
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  &.inactive-icon {
+    background: rgba(239, 68, 68, 0.1);
+    
+    mat-icon {
+      color: #ef4444;
+    }
+  }
+}
+
+.project-item:hover .project-icon {
+  transform: scale(1.05);
+}
+
+// ============================================
+// PROJECT INFO
+// ============================================
+
+.project-info {
+  flex: 1;
+  min-width: 0; // For text truncation
+}
+
+.project-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+  
+  &.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #065f46;
+  }
+  
+  &:not(.active) {
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+  }
+}
+
+.identifier {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+// ============================================
+// PROJECT ACTIONS
+// ============================================
+
+.project-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.action-menu-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  color: var(--text-secondary) !important;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px; // 🔑 important
+    margin: 0;         // 🔑 important
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--accent-blue) !important;
+  }
+}
+
+.delete-action {
+  color: #ef4444 !important;
+  
+  mat-icon {
+    color: #ef4444;
+  }
+}
+
+// ============================================
+// CHEVRON
+// ============================================
+
+.chevron {
+  opacity: 0;
+  color: var(--text-tertiary);
+  transition: opacity 0.2s ease;
+}
+
+.project-item:hover .chevron {
+  opacity: 0.5;
+}
+
+.project-item.selected .chevron {
+  opacity: 1;
+  color: var(--accent-blue);
+}
+
+// ============================================
+// EMPTY STATE
+// ============================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1rem;
+  min-height: 300px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--accent-blue);
+    opacity: 0.6;
+  }
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.empty-action-btn {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 0 1.5rem !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+  
+  mat-icon {
+    margin-right: 0.5rem;
+  }
+  
+  &:hover {
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+    transform: translateY(-2px);
+  }
+}
+
+// ============================================
+// SCROLLBAR STYLING
+// ============================================
+
+.project-items {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.project-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 768px) {
+  .project-header {
+    padding: 1rem 0.75rem;
+  }
+  
+  .header-title {
+    font-size: 1.1rem;
+  }
+  
+  .project-items {
+    padding: 0.5rem;
+  }
+  
+  .project-item {
+    padding: 0.75rem;
+  }
+  
+  .project-name {
+    font-size: 0.9rem;
+  }
+}

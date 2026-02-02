@@ -1,0 +1,320 @@
+@if(selectedProjectId) {
+  <div class="task-board">
+    <div class="board-header">
+      <div class="header-left">
+        <h1 class="board-title">Tasks</h1>
+        <div class="task-count">{{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}</div>
+      </div>
+      
+      <div class="header-actions">
+        <button 
+          mat-icon-button 
+          class="view-toggle"
+          (click)="cycleViewMode()"
+          [matTooltip]="getViewTooltip()">
+          <mat-icon>{{ getViewIcon() }}</mat-icon>
+        </button>
+        
+        <button 
+          mat-raised-button 
+          color="primary" 
+          class="add-task-btn"
+          (click)="openCreateTask()">
+          <mat-icon>add</mat-icon>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    @if (viewMode === 'kanban') {
+      <div class="kanban-board">
+        @for (column of columns; track column.id) {
+          <div class="kanban-column">
+            <div class="column-header" [style.border-color]="column.color">
+              <div class="column-title-row">
+                <div class="column-icon" [style.background-color]="column.color">
+                  <mat-icon>{{ column.icon }}</mat-icon>
+                </div>
+                <h3 class="column-title">{{ column.title }}</h3>
+                <span class="column-count">{{ column.tasks.length }}</span>
+              </div>
+            </div>
+
+            <div 
+              class="column-content"
+              cdkDropList
+              [cdkDropListData]="column.tasks"
+              [id]="column.id"
+              [cdkDropListConnectedTo]="['new', 'in-progress', 'completed']"
+              (cdkDropListDropped)="onTaskDrop($event, column)">
+              
+              @for (task of column.tasks; track task.id; let i = $index) {
+                <div 
+                  class="task-card-wrapper"
+                  cdkDrag
+                  [style.animation-delay]="i * 0.03 + 's'">
+                  <mat-card class="task-card" [class]="getTaskStatusClass(task)">
+                    <div class="card-header">
+                      <div class="task-priority" [class]="getPriorityColor(task.priority)">
+                        <div class="priority-indicator"></div>
+                        <span class="priority-label">{{ getPriorityLabel(task.priority) }}</span>
+                      </div>
+                      
+                      <div class="card-actions">
+                        <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+
+                    <mat-card-content class="card-content">
+                      <h3 class="task-title">{{ task.title }}</h3>
+                      
+                      @if (task.description) {
+                        <p class="task-description">{{ task.description }}</p>
+                      }
+                      
+                      <div class="task-meta">
+                        @if (task.owner_id) {
+                          <div class="meta-item">
+                            <mat-icon>person</mat-icon>
+                            <span>{{ task.owner_name }}</span>
+                          </div>
+                        }
+                        
+                        @if (task.date_completed) {
+                          <div class="meta-item">
+                            <mat-icon>event</mat-icon>
+                            <span>{{ task.date_completed | date: 'MMM d' }}</span>
+                          </div>
+                        }
+                      </div>
+
+                      @if (task.tags && task.tags.length > 0) {
+                        <mat-chip-set class="task-tags">
+                          @for (tag of task.tags; track tag) {
+                            <mat-chip class="task-tag">{{ tag }}</mat-chip>
+                          }
+                        </mat-chip-set>
+                      }
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              }
+
+              @if (column.tasks.length === 0) {
+                <div class="column-empty">
+                  <mat-icon>{{ column.icon }}</mat-icon>
+                  <p>No tasks</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Grid View -->
+    @if (viewMode === 'grid') {
+      <div class="tasks-container grid-view">
+        @for (task of tasks; track task.id; let i = $index) {
+          <div 
+            class="task-card-wrapper"
+            [style.animation-delay]="i * 0.05 + 's'">
+            <mat-card class="task-card" [class]="getTaskStatusClass(task)">
+              <div class="card-header">
+                <div class="task-priority" [class]="getPriorityColor(task.priority)">
+                  <div class="priority-indicator"></div>
+                  <span class="priority-label">{{ getPriorityLabel(task.priority) }}</span>
+                </div>
+                
+                <div class="card-actions">
+                  <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <mat-card-content class="card-content">
+                <div class="task-status-badge" [class]="getTaskStatusClass(task)">
+                  @if (getTaskStatus(task) === 'new') {
+                    <mat-icon>fiber_new</mat-icon>
+                    <span>New</span>
+                  }
+                  @if (getTaskStatus(task) === 'in-progress') {
+                    <mat-icon>sync</mat-icon>
+                    <span>In Progress</span>
+                  }
+                  @if (getTaskStatus(task) === 'completed') {
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Completed</span>
+                  }
+                </div>
+
+                <h3 class="task-title">{{ task.title }}</h3>
+                
+                @if (task.description) {
+                  <p class="task-description">{{ task.description }}</p>
+                }
+                
+                <div class="task-meta">
+                  @if (task.owner_id) {
+                    <div class="meta-item">
+                      <mat-icon>person</mat-icon>
+                      <span>{{ task.owner_name }}</span>
+                    </div>
+                  }
+                  
+                  @if (task.date_completed) {
+                    <div class="meta-item">
+                      <mat-icon>event</mat-icon>
+                      <span>{{ task.date_completed | date: 'MMM d, y' }}</span>
+                    </div>
+                  }
+                </div>
+
+                @if (task.tags && task.tags.length > 0) {
+                  <mat-chip-set class="task-tags">
+                    @for (tag of task.tags; track tag) {
+                      <mat-chip class="task-tag">{{ tag }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+        
+        @if (tasks.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <mat-icon>task_alt</mat-icon>
+            </div>
+            <h2>No tasks yet</h2>
+            <p>Create your first task to get started</p>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              class="empty-action-btn"
+              (click)="openCreateTask()">
+              <mat-icon>add</mat-icon>
+              <span>Create Task</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- List View -->
+    @if (viewMode === 'list') {
+      <div class="tasks-container list-view">
+        @for (task of tasks; track task.id; let i = $index) {
+          <div 
+            class="task-card-wrapper"
+            [style.animation-delay]="i * 0.03 + 's'">
+            <mat-card class="task-card list-card" [class]="getTaskStatusClass(task)">
+              <mat-card-content class="list-card-content">
+                <div class="list-main">
+                  <div class="task-status-badge" [class]="getTaskStatusClass(task)">
+                    @if (getTaskStatus(task) === 'new') {
+                      <mat-icon>fiber_new</mat-icon>
+                      <span>New</span>
+                    }
+                    @if (getTaskStatus(task) === 'in-progress') {
+                      <mat-icon>sync</mat-icon>
+                      <span>In Progress</span>
+                    }
+                    @if (getTaskStatus(task) === 'completed') {
+                      <mat-icon>check_circle</mat-icon>
+                      <span>Completed</span>
+                    }
+                  </div>
+
+                  <div class="list-info">
+                    <h3 class="task-title">{{ task.title }}</h3>
+                    @if (task.description) {
+                      <p class="task-description">{{ task.description }}</p>
+                    }
+                  </div>
+
+                  <div class="list-meta">
+                    <div class="task-priority" [class]="getPriorityColor(task.priority)">
+                      <div class="priority-indicator"></div>
+                      <span class="priority-label">{{ getPriorityLabel(task.priority) }}</span>
+                    </div>
+
+                    @if (task.owner_id) {
+                      <div class="meta-item">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ task.owner_name }}</span>
+                      </div>
+                    }
+                    
+                    @if (task.date_completed) {
+                      <div class="meta-item">
+                        <mat-icon>event</mat-icon>
+                        <span>{{ task.date_completed | date: 'MMM d, y' }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  @if (task.tags && task.tags.length > 0) {
+                    <mat-chip-set class="task-tags">
+                      @for (tag of task.tags; track tag) {
+                        <mat-chip class="task-tag">{{ tag }}</mat-chip>
+                      }
+                    </mat-chip-set>
+                  }
+                </div>
+
+                <div class="list-actions">
+                  <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+        
+        @if (tasks.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <mat-icon>task_alt</mat-icon>
+            </div>
+            <h2>No tasks yet</h2>
+            <p>Create your first task to get started</p>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              class="empty-action-btn"
+              (click)="openCreateTask()">
+              <mat-icon>add</mat-icon>
+              <span>Create Task</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div class="select-project-state">
+    <div class="state-content">
+      <div class="state-icon">
+        <mat-icon>folder_open</mat-icon>
+      </div>
+      <h2>Select a project</h2>
+      <p>Choose a project from the sidebar to view and manage tasks</p>
+    </div>
+  </div>
+}

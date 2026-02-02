@@ -1,0 +1,105 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ApiService } from '../../../core/services/api.service';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { User } from '../../../core/models/user.model';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
+import { Task } from '../../../core/models/task.model';
+
+export interface TaskDialogData {
+  task?: Task;
+}
+
+@Component({
+  selector: 'app-task-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSliderModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './task-dialog.component.html',
+  styleUrl: './task-dialog.component.less'
+})
+export class TaskDialogComponent implements OnInit {
+   users: User[] = [];
+  taskForm!: FormGroup;
+  isEditMode: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private api: ApiService,
+    public dialogRef: MatDialogRef<TaskDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: TaskDialogData
+  ) {}
+
+  ngOnInit() {
+    this.api.getUsers().subscribe(u => this.users = u);
+    this.isEditMode = !!this.data?.task?.id;
+    
+    this.taskForm = this.fb.group({
+      title: [this.data?.task?.title || '', Validators.required],
+      description: [this.data?.task?.description || ''],
+      owner_id: [this.data?.task?.owner_id || null],
+      priority: [this.data?.task?.priority || 5],
+      project_id: [this.data?.task?.project_id || -1],
+      tags: [this.data?.task?.tags?.join(', ') || ''],
+    });
+  }
+
+  save() {
+    if (this.taskForm.invalid) return;
+
+    const formValue = this.taskForm.value;
+
+    // Process tags
+    if (formValue.tags && typeof formValue.tags === 'string') {
+      formValue.tags = formValue.tags.split(',').map((t: string) => t.trim());
+    }
+    else
+      formValue.tags = null;
+    
+    formValue.owner_name = this.users.find(user => user.id === formValue.owner_id) ?? "Unassigned";
+
+    if (this.isEditMode) {
+      const updates = { id: this.data.task?.id, ...formValue };
+      this.api.updateTask(updates).subscribe({
+        next: () => this.dialogRef.close(true),
+        error: (err) => console.error('Failed to update task', err)
+      });
+    } else {
+      this.api.createTask(formValue).subscribe({
+        next: () => this.dialogRef.close(true),
+        error: (err) => console.error('Failed to create task', err)
+      });
+    }
+  }
+
+  close() {
+    this.dialogRef.close();
+  }
+
+  getPriorityLabel(value: number): string {
+    if (value >= 7) return 'High Priority';
+    if (value >= 4) return 'Medium Priority';
+    return 'Low Priority';
+  }
+
+  getPriorityColor(value: number): string {
+    if (value >= 7) return 'high';
+    if (value >= 4) return 'medium';
+    return 'low';
+  }
+}

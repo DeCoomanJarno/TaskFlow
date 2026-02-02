@@ -1,0 +1,68 @@
+<div class="dialog-wrapper">
+  <div class="dialog-header">
+    <div>
+      <h2 mat-dialog-title class="dialog-title">
+        {{ isEditMode ? 'Edit User' : 'Add New User' }}
+      </h2>
+      <p class="dialog-subtitle">
+        {{ isEditMode ? 'Update user information' : 'Create a new user account' }}
+      </p>
+    </div>
+    <button mat-icon-button class="close-btn" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="save()" class="user-form">
+    <mat-dialog-content class="dialog-content">
+      @if (isEditMode) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>User ID</mat-label>
+          <input matInput formControlName="id" readonly />
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" placeholder="Enter username" required />
+        <mat-icon matPrefix>person</mat-icon>
+  <mat-error *ngIf="userForm.get('username')?.hasError('required')">
+    Username is required
+  </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input 
+          matInput 
+          type="password" 
+          formControlName="password" 
+          [placeholder]="isEditMode ? 'Leave blank to keep current password' : 'Leave blank when username = password'"/>
+        <mat-icon matPrefix>lock</mat-icon>
+  <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
+    Password must be at least 6 characters
+  </mat-error>
+
+  <mat-error *ngIf="userForm.get('password')?.hasError('usernameUsedAsPasswordTooShort')">
+    Username must be at least 6 characters when used as password
+  </mat-error>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+      <button mat-button type="button" class="cancel-btn" (click)="close()">
+        Cancel
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit" 
+        class="save-btn"
+        [disabled]="userForm.invalid">
+        <mat-icon>{{ isEditMode ? 'save' : 'person_add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Save Changes' : 'Add User' }}</span>
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

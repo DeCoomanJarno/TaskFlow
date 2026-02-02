@@ -1,0 +1,62 @@
+<div class="app-wrapper">
+  <mat-toolbar class="app-toolbar">
+    <div class="toolbar-content">
+      <div class="brand">
+        <mat-icon class="brand-icon">dashboard</mat-icon>
+        <span class="brand-name">TaskFlow</span>
+      </div>
+      
+      <div class="nav-tabs">
+        <button 
+          mat-button 
+          class="nav-tab"
+          [class.active]="currentView === 'tasks'"
+          (click)="switchView('tasks')">
+          <mat-icon>task</mat-icon>
+          <span>Tasks</span>
+        </button>
+        <button 
+          mat-button 
+          class="nav-tab"
+          [class.active]="currentView === 'users'"
+          (click)="switchView('users')">
+          <mat-icon>people</mat-icon>
+          <span>Users</span>
+        </button>
+      </div>
+      
+      <div class="toolbar-actions">
+          <!--
+          <button mat-icon-button class="toolbar-icon">
+            <mat-icon>notifications</mat-icon>
+          </button>
+          <button mat-icon-button class="toolbar-icon">
+            <mat-icon>settings</mat-icon>
+          </button>
+          -->
+        </div>
+    </div>
+  </mat-toolbar>
+
+  <div class="app-content">
+    @if (currentView === 'tasks') {
+      <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav mode="side" opened class="project-sidebar">
+          <app-project-list
+            (projectSelected)="taskBoard.loadTasks($event)">
+          </app-project-list>
+        </mat-sidenav>
+
+        <mat-sidenav-content class="main-content">
+          <app-task-board #taskBoard></app-task-board>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+    }
+    
+    @if (currentView === 'users') {
+      <div class="users-view">
+        <app-user-management></app-user-management>
+      </div>
+    }
+  </div>
+</div>

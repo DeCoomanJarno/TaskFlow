@@ -1,0 +1,95 @@
+<div class="project-list">
+  <!-- Header with Add Button -->
+  <div class="project-header">
+            <h2>Custom Screens</h2>
+    <button 
+      mat-mini-fab 
+      color="primary" 
+      class="add-project-btn"
+      (click)="openCreateDialog()"
+      matTooltip="Create new project">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Project Items -->
+  <div class="project-items">
+    @for (project of projects; track project.id) {
+      <div
+        class="project-item"
+        [class.selected]="isSelected(project)"
+        [class.inactive]="project.is_active === 0"
+        (click)="selectProject(project)"
+        matRipple>
+
+        <div class="project-icon" [class.inactive-icon]="project.is_active === 0">
+          <mat-icon>{{ project.is_active === 1 ? 'folder' : 'folder_off' }}</mat-icon>
+        </div>
+
+        <div class="project-info">
+          <div class="project-name">
+            {{ project.name }}
+          </div>
+
+          <div class="project-meta" [class.inactive]="project.is_active === 0">
+            <span class="status-badge" [class.active]="project.is_active === 1">
+              {{ project.is_active === 1 ? 'Active' : 'Inactive' }}
+            </span>
+            @if (project.identifier) {
+              <span class="identifier">{{ project.identifier }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Actions Menu -->
+        <div class="project-actions" (click)="$event.stopPropagation()">
+          <button 
+            mat-icon-button 
+            [matMenuTriggerFor]="projectMenu"
+            class="action-menu-btn">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #projectMenu="matMenu">
+            <button mat-menu-item (click)="openEditDialog(project, $event)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            
+            <button mat-menu-item (click)="toggleActive(project, $event)">
+              <mat-icon>{{ project.is_active === 1 ? 'block' : 'check_circle' }}</mat-icon>
+              <span>{{ project.is_active === 1 ? 'Deactivate' : 'Activate' }}</span>
+            </button>
+            
+            <mat-divider></mat-divider>
+            
+            <button mat-menu-item (click)="deleteProject(project, $event)" class="delete-action">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+
+        <mat-icon class="chevron">chevron_right</mat-icon>
+      </div>
+    }
+
+    @if (projects.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>folder_off</mat-icon>
+        </div>
+        <h3>No projects yet</h3>
+        <p>Get started by creating your first project</p>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="openCreateDialog()"
+          class="empty-action-btn">
+          <mat-icon>add</mat-icon>
+          <span>Create Project</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
