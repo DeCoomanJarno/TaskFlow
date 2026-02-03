@@ -246,7 +246,7 @@ namespace TaskManagerApi.Controllers
             return await _users.GetByIdAsync(userId.Value);
         }
 
-        private async Task LogActionAsync(string action, string entity, int? entityId, string? metadata = null, User? actor = null)
+        private async System.Threading.Tasks.Task LogActionAsync(string action, string entity, int? entityId, string? metadata = null, User? actor = null)
         {
             actor ??= await GetAuthenticatedUserAsync();
             var actorName = actor?.Name ?? "Anonymous";

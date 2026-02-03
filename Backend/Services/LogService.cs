@@ -36,7 +36,7 @@ namespace TaskProxyApi.Services
             return entry;
         }
 
-        private async Task PurgeOldAsync()
+        private async System.Threading.Tasks.Task PurgeOldAsync()
         {
             var retentionDays = _settings.RetentionDays <= 0 ? 1 : _settings.RetentionDays;
             var cutoff = DateTime.UtcNow.AddDays(-retentionDays);
