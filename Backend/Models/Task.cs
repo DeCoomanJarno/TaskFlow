@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TaskProxyApi.Dtos;
 
 namespace TaskProxyApi.Models
 {
@@ -30,6 +29,6 @@ namespace TaskProxyApi.Models
         [ForeignKey(nameof(AssignedUserId))]
         public User AssignedUser { get; set; }
         public string CompletedDate { get; set; } = string.Empty;
-        public CommentDto[] Comments { get; set; } = new CommentDto[0];
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

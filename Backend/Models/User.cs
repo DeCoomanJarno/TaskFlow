@@ -15,5 +15,6 @@ namespace TaskProxyApi.Models
         public string Email { get; set; }
 
         public ICollection<Task> AssignedTasks { get; set; } = new List<Task>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }
