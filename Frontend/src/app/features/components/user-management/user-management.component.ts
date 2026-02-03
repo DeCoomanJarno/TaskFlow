@@ -70,7 +70,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(user: User): void {
-    if (!confirm(`Delete user "${user.username}"?`)) return;
+    if (!confirm(`Delete user "${user.name}"?`)) return;
     
     // Note: You'll need to add a deleteUser method to your ApiService
     console.log('Delete user:', user);

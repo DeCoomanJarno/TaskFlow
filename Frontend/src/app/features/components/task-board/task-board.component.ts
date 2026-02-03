@@ -91,11 +91,10 @@ export class TaskBoardComponent {
       tasks: this.api.getTasks(projectId)
     }).subscribe(({ users, tasks }) => {
       this.tasks = tasks.map(task => {
-        const owner = users.find(u => u.id === task.owner_id);
-
+        const owner = users.find(u => u.id === task.assignedUserId);
         return {
           ...task,
-          owner_name: owner ? owner.username : 'Unassigned'
+          assignedUserName: owner ? owner.name : 'Unassigned'
         };
       });
 
@@ -107,14 +106,14 @@ export class TaskBoardComponent {
     // Reset columns
     this.columns.forEach(column => column.tasks = []);
 
-    // Organize tasks into columns based on their column_id from Kanboard
+    // Organize tasks into columns based on their columnId from Kanboard
     this.tasks.forEach(task => {
-      const column = this.columns.find(col => col.kanboardColumnId === task.column_id);
+      const column = this.columns.find(col => col.kanboardColumnId === task.columnId);
       if (column) {
         column.tasks.push(task);
       } else {
-        // Fallback: use status logic if column_id doesn't match
-        const status = this.getTaskStatusFallback(task);
+        // Fallback: use status logic if columnId doesn't match
+        const status = this.getTaskStatus(task);
         const fallbackColumn = this.columns.find(col => col.id === status);
         if (fallbackColumn) {
           fallbackColumn.tasks.push(task);
@@ -124,28 +123,17 @@ export class TaskBoardComponent {
 
     // Sort tasks by position within each column
     this.columns.forEach(column => {
-      column.tasks.sort((a, b) => a.position - b.position);
+      column.tasks.sort((a, b) => a.order - b.order);
     });
   }
 
   getTaskStatus(task: Task): TaskStatus {
-    // Primary: Use column_id mapping
-    const column = this.columns.find(col => col.kanboardColumnId === task.column_id);
+    // Primary: Use columnId mapping
+    const column = this.columns.find(col => col.kanboardColumnId === task.columnId);
     if (column) {
       return column.id;
     }
     
-    // Fallback: Use old status logic
-    return this.getTaskStatusFallback(task);
-  }
-
-  getTaskStatusFallback(task: Task): TaskStatus {
-    if (task.date_completed) {
-      return 'completed';
-    }
-    if (task.is_active === 1) {
-      return 'in-progress';
-    }
     return 'new';
   }
 
@@ -173,21 +161,20 @@ export class TaskBoardComponent {
     }
   }
 
-  moveTaskToColumn(task: Task, targetColumn: TaskColumn, position: number) {
+  moveTaskToColumn(task: Task, targetColumn: TaskColumn, order: number) {
     if (!this.selectedProjectId) return;
 
     const moveRequest = {
       projectId: this.selectedProjectId,
       columnId: targetColumn.kanboardColumnId,
-      position: position + 1, // Kanboard positions are 1-based
-      swimlaneId: task.swimlane_id || 0 // Use task's swimlane or default
+      order: order + 1, // Kanboard positions are 1-based
     };
 
     this.api.moveTask(task.id, moveRequest).subscribe({
       next: () => {
         // Update local task object
-        task.column_id = targetColumn.kanboardColumnId;
-        task.position = position;
+        task.columnId = targetColumn.kanboardColumnId;
+        task.order = order;
 
         // Update positions for source and target columns
         this.updateTaskPositions(targetColumn);
@@ -208,26 +195,23 @@ export class TaskBoardComponent {
   updateTaskPositions(column: TaskColumn) {
     // Update position property for all tasks in column to match their array index
     column.tasks.forEach((task, index) => {
-      task.position = index;
+      task.order = index;
     });
   }
 
   updateTaskMetadataByColumn(task: Task, status: TaskStatus) {
     // Optionally update task metadata when moved to different status columns
-    const updates: any = {};
+    const updates: any = { };
 
     switch (status) {
       case 'new':
-        updates.is_active = 0;
-        updates.date_completed = null;
+        updates.completedDate = undefined;
         break;
       case 'in-progress':
-        updates.is_active = 1;
-        updates.date_completed = null;
+        updates.completedDate = undefined;
         break;
       case 'completed':
-        updates.is_active = 1;
-        updates.date_completed = Date.now() / 1000; // Unix timestamp
+        updates.completedDate = Date.now() / 1000; // Unix timestamp
         break;
     }
 
@@ -273,7 +257,7 @@ export class TaskBoardComponent {
 
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '500px',
-      data: { task: { project_id: this.selectedProjectId } }
+      data: { task: { projectId: this.selectedProjectId } }
     });
 
     dialogRef.afterClosed().subscribe(result => {

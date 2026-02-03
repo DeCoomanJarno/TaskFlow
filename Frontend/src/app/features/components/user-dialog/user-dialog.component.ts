@@ -43,7 +43,7 @@ export class UserDialogComponent implements OnInit {
     this.isEditMode = !!this.data?.user?.id;
 
     this.userForm = this.fb.group({
-      username: [this.data?.user?.username || '', [Validators.required, Validators.minLength(1)]],
+      name: [this.data?.user?.name || '', [Validators.required, Validators.minLength(1)]],
       password: [this.data?.user?.password || '',]
     },
       {
@@ -52,7 +52,7 @@ export class UserDialogComponent implements OnInit {
   }
 
   passwordOrUsernameMinLengthValidator(form: FormGroup) {
-  const usernameCtrl = form.get('username');
+  const usernameCtrl = form.get('name');
   const passwordCtrl = form.get('password');
 
   const username = usernameCtrl?.value || '';
@@ -81,7 +81,7 @@ export class UserDialogComponent implements OnInit {
     const formValue = this.userForm.value;
 
     if (!formValue.password)
-      formValue.password = formValue.username;
+      formValue.password = formValue.name;
 
     if (this.isEditMode) {
       this.api.updateUser(formValue).subscribe({

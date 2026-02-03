@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using TaskManagerApi.Services;
+using TaskProxyApi.Services;
+using TaskProxyApi.Models;
 
 namespace TaskManagerApi.Controllers
 {
@@ -13,119 +14,132 @@ namespace TaskManagerApi.Controllers
             public int ProjectId { get; set; }
             public int ColumnId { get; set; }
             public int Position { get; set; }
-            public int SwimlaneId { get; set; } = 0; // Default swimlane
+            public int SwimlaneId { get; set; } = 0; // ignored but kept for compatibility
         }
 
-        private readonly KanboardClient _kanboard;
+        private readonly TaskService _tasks;
+        private readonly ProjectService _projects;
 
-        public TasksController(KanboardClient kanboard)
+        public TasksController(TaskService tasks, ProjectService projects)
         {
-            _kanboard = kanboard;
+            _tasks = tasks;
+            _projects = projects;
         }
 
         // ================= Create Task =================
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TaskDto request)
+        public async Task<IActionResult> Create([FromBody] JsonElement request)
         {
-            if(request.project_id == -1)
+            if (!request.TryGetProperty("projectId", out var projectIdProp))
+                return BadRequest("Missing projectId");
+
+            int projectId = projectIdProp.GetInt32();
+            if (projectId <= 0)
                 return BadRequest("Bad Project ID");
 
-            var parameters = new Dictionary<string, object>
+            var project = await _projects.GetByIdAsync(projectId);
+            if (project == null)
+                return NotFound("Project not found");
+
+            var task = new TaskProxyApi.Models.Task
             {
-                ["project_id"] = request.project_id,
-                ["title"] = request.Title
+                ProjectId = projectId,
+                Title = request.TryGetProperty("title", out var t) && t.ValueKind == JsonValueKind.String
+                    ? t.GetString()!
+                    : "Untitled",
+
+                Description = request.TryGetProperty("description", out var d) && d.ValueKind == JsonValueKind.String
+                    ? d.GetString()
+                    : "",
+
+                AssignedUserId =
+                    request.TryGetProperty("assignedUserId", out var o) &&
+                    o.ValueKind == JsonValueKind.Number &&
+                    o.GetInt32() > 0
+                        ? o.GetInt32()
+                        : null,
+
+                Priority =
+                    request.TryGetProperty("priority", out var p) &&
+                    p.ValueKind == JsonValueKind.Number
+                        ? p.GetInt32()
+                        : 0,
+
+                ColumnId = 0
             };
 
-            if (!string.IsNullOrWhiteSpace(request.description))
-                parameters["description"] = request.description;
 
-            if (request.owner_id != null)
-                parameters["owner_id"] = request.owner_id;
-            else
-                parameters["owner_id"] = 0;
-
-            if (request.category_id != null)
-                parameters["category_id"] = request.category_id;
-            if (request.Tags != null && request.Tags.Length > 0)
-                parameters["tags"] = request.Tags; // Kanboard expects array of strings
-
-            if (!string.IsNullOrWhiteSpace(request.color_id))
-                parameters["color_id"] = request.color_id;
-
-            parameters["priority"] = request.priority;
-
-            var taskIdJson = await _kanboard.CallAsync("createTask", parameters);
-
-            if (taskIdJson.ValueKind == JsonValueKind.Number)
-                return Ok(new { Id = taskIdJson.GetInt32() });
-
-            return BadRequest("Failed to create task");
+            var created = await _tasks.CreateAsync(task);
+            return Ok(new { Id = created.Id });
         }
 
         // ================= Update Task =================
-        [HttpPut("{taskId}")]
+        [HttpPut("{taskId:int}")]
         public async Task<IActionResult> Update(int taskId, [FromBody] Dictionary<string, object> updates)
         {
-            updates["id"] = taskId;
+            var task = await _tasks.GetByIdAsync(taskId);
+            if (task == null)
+                return NotFound();
 
-            if (updates.TryGetValue("tags", out var tagsObj))
+            if (updates.TryGetValue("title", out var title))
+                task.Title = title?.ToString() ?? task.Title;
+
+            if (updates.TryGetValue("description", out var desc))
+                task.Description = desc?.ToString();
+
+            if (updates.TryGetValue("assignedUserId", out var owner))
             {
-                switch (tagsObj)
+                switch (owner)
                 {
-                    case string s:
-                        updates["tags"] = s.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                        break;
-                    case IEnumerable<string> arr:
-                        updates["tags"] = arr.ToArray();
-                        break;
-                    case null:
-                        updates["tags"] = Array.Empty<string>();
-                        break;
-                    case JsonElement je when je.ValueKind == JsonValueKind.Array:
-                        updates["tags"] = je.EnumerateArray().Select(e => e.GetString() ?? "").ToArray();
-                        break;
-                    default:
-                        updates["tags"] = Array.Empty<string>();
+                    case JsonElement je when je.ValueKind == JsonValueKind.Number:
+                        var ownerId = je.GetInt32();
+                        task.AssignedUserId = ownerId == 0 ? null : ownerId;
                         break;
 
+                    case int intOwner:  // in case someone passed int directly
+                        task.AssignedUserId = intOwner == 0 ? null : intOwner;
+                        break;
+
+                    default:
+                        task.AssignedUserId = null;
+                        break;
                 }
             }
 
-            var result = await _kanboard.CallAsync("updateTask", updates);
 
-            if (result.ValueKind == JsonValueKind.True)
-                return Ok(new { Success = true });
-            else
-                return BadRequest("Failed to update task");
+            if (updates.TryGetValue("priority", out var prioObj))
+            {
+                if (prioObj is JsonElement prioEl && prioEl.ValueKind == JsonValueKind.Number)
+                {
+                    task.Priority = prioEl.GetInt32();
+                }
+            }
+
+            // tags are ignored for now, but endpoint accepts them
+            await _tasks.UpdateAsync(task);
+            return Ok(new { Success = true });
         }
 
         // ================= Move Task Position =================
-        [HttpPost("{taskId}/move")]
+        [HttpPost("{taskId:int}/move")]
         public async Task<IActionResult> MoveTask(int taskId, [FromBody] MoveTaskRequest request)
         {
-            var parameters = new Dictionary<string, object>
-            {
-                ["project_id"] = request.ProjectId,
-                ["task_id"] = taskId,
-                ["column_id"] = request.ColumnId,
-                ["position"] = request.Position,
-                ["swimlane_id"] = request.SwimlaneId
-            };
+            var task = await _tasks.GetByIdAsync(taskId);
+            if (task == null)
+                return NotFound();
 
-            var result = await _kanboard.CallAsync("moveTaskPosition", parameters);
+            task.ColumnId = request.ColumnId;
+            task.Order = request.Position;
 
-            if (result.ValueKind == JsonValueKind.True)
-                return Ok(new { Success = true });
-            else
-                return BadRequest("Failed to move task");
+            await _tasks.UpdateAsync(task);
+            return Ok(new { Success = true });
         }
 
         // ================= Delete Task =================
-        [HttpDelete("{taskId}")]
+        [HttpDelete("{taskId:int}")]
         public async Task<IActionResult> Delete(int taskId)
         {
-            var resultJson = await _kanboard.CallAsync("removeTask", new { task_id = taskId });
-            bool success = resultJson.ValueKind == JsonValueKind.True || resultJson.GetBoolean();
+            var success = await _tasks.DeleteAsync(taskId);
             return Ok(new { Success = success });
         }
     }

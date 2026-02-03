@@ -45,14 +45,8 @@ projectForm: FormGroup;
     return this.fb.group({
       name: [project?.name || '', Validators.required],
       description: [project?.description || ''],
-      identifier: [project?.identifier || ''],
-      email: [project?.email || '', Validators.email],
-      start_date: [project?.start_date || null],
-      end_date: [project?.end_date || null],
-      priority_default: [project?.priority_default || 0],
-      priority_start: [project?.priority_start || 0],
-      priority_end: [project?.priority_end || 10],
-      is_active: [project?.is_active !== 0]
+      endDate: [project?.endDate || ''],
+      isActive: [project?.isActive || true]
     });
   }
 
@@ -61,7 +55,7 @@ projectForm: FormGroup;
       const formValue = this.projectForm.value;
       const project: Project = {
         ...formValue,
-        is_active: formValue.is_active ? 1 : 0,
+        isActive: formValue.isActive ?? true,
         id: this.data?.project?.id
       };
       this.dialogRef.close(project);

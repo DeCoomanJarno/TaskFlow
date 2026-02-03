@@ -35,10 +35,10 @@
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Owner</mat-label>
-          <mat-select formControlName="owner_id" placeholder="Select owner">
+          <mat-select formControlName="assignedUserId" placeholder="Select owner">
             @for (user of users; track user.id) {
               <mat-option [value]="user.id">
-                {{ user.username }}
+                {{ user.name }}
               </mat-option>
             }
           </mat-select>
@@ -67,15 +67,6 @@
           <span class="indicator high">High</span>
         </div>
       </div>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tags</mat-label>
-        <input 
-          matInput 
-          formControlName="tags" 
-          placeholder="e.g. bug, frontend, urgent (comma separated)" />
-        <mat-icon matPrefix>label</mat-icon>
-      </mat-form-field>
     </mat-dialog-content>
 
     <mat-dialog-actions class="dialog-actions">

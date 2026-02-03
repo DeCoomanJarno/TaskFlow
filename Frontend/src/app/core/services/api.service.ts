@@ -23,7 +23,7 @@ getProject(id: number) {
 }
 
 createProject(project: Project) {
-  return this.http.post<{ project_id: number }>(`${this.baseUrl}/projects`, project);
+  return this.http.post<{ projectId: number }>(`${this.baseUrl}/projects`, project);
 }
 
 updateProject(id: number, project: Project) {

@@ -79,28 +79,20 @@
                       }
                       
                       <div class="task-meta">
-                        @if (task.owner_id) {
+                        @if (task.assignedUserId) {
                           <div class="meta-item">
                             <mat-icon>person</mat-icon>
-                            <span>{{ task.owner_name }}</span>
+                            <span>{{ task.assignedUserName }}</span>
                           </div>
                         }
                         
-                        @if (task.date_completed) {
+                        @if (task.completedDate) {
                           <div class="meta-item">
                             <mat-icon>event</mat-icon>
-                            <span>{{ task.date_completed | date: 'MMM d' }}</span>
+                            <span>{{ task.completedDate | date: 'MMM d' }}</span>
                           </div>
                         }
                       </div>
-
-                      @if (task.tags && task.tags.length > 0) {
-                        <mat-chip-set class="task-tags">
-                          @for (tag of task.tags; track tag) {
-                            <mat-chip class="task-tag">{{ tag }}</mat-chip>
-                          }
-                        </mat-chip-set>
-                      }
                     </mat-card-content>
                   </mat-card>
                 </div>
@@ -165,28 +157,21 @@
                 }
                 
                 <div class="task-meta">
-                  @if (task.owner_id) {
+                  @if (task.assignedUserId) {
                     <div class="meta-item">
                       <mat-icon>person</mat-icon>
-                      <span>{{ task.owner_name }}</span>
+                      <span>{{ task.assignedUserName }}</span>
                     </div>
                   }
                   
-                  @if (task.date_completed) {
+                  @if (task.completedDate) {
                     <div class="meta-item">
                       <mat-icon>event</mat-icon>
-                      <span>{{ task.date_completed | date: 'MMM d, y' }}</span>
+                      <span>{{ task.completedDate | date: 'MMM d, y' }}</span>
                     </div>
                   }
                 </div>
 
-                @if (task.tags && task.tags.length > 0) {
-                  <mat-chip-set class="task-tags">
-                    @for (tag of task.tags; track tag) {
-                      <mat-chip class="task-tag">{{ tag }}</mat-chip>
-                    }
-                  </mat-chip-set>
-                }
               </mat-card-content>
             </mat-card>
           </div>
@@ -250,28 +235,21 @@
                       <span class="priority-label">{{ getPriorityLabel(task.priority) }}</span>
                     </div>
 
-                    @if (task.owner_id) {
+                    @if (task.assignedUserId) {
                       <div class="meta-item">
                         <mat-icon>person</mat-icon>
-                        <span>{{ task.owner_name }}</span>
+                        <span>{{ task.assignedUserName }}</span>
                       </div>
                     }
                     
-                    @if (task.date_completed) {
+                    @if (task.completedDate) {
                       <div class="meta-item">
                         <mat-icon>event</mat-icon>
-                        <span>{{ task.date_completed | date: 'MMM d, y' }}</span>
+                        <span>{{ task.completedDate | date: 'MMM d, y' }}</span>
                       </div>
                     }
                   </div>
 
-                  @if (task.tags && task.tags.length > 0) {
-                    <mat-chip-set class="task-tags">
-                      @for (tag of task.tags; track tag) {
-                        <mat-chip class="task-tag">{{ tag }}</mat-chip>
-                      }
-                    </mat-chip-set>
-                  }
                 </div>
 
                 <div class="list-actions">

@@ -52,10 +52,9 @@ export class TaskDialogComponent implements OnInit {
     this.taskForm = this.fb.group({
       title: [this.data?.task?.title || '', Validators.required],
       description: [this.data?.task?.description || ''],
-      owner_id: [this.data?.task?.owner_id || null],
+      assignedUserId: [this.data?.task?.assignedUserId || null],
       priority: [this.data?.task?.priority || 5],
-      project_id: [this.data?.task?.project_id || -1],
-      tags: [this.data?.task?.tags?.join(', ') || ''],
+      projectId: [this.data?.task?.projectId || -1],
     });
   }
 
@@ -71,7 +70,7 @@ export class TaskDialogComponent implements OnInit {
     else
       formValue.tags = null;
     
-    formValue.owner_name = this.users.find(user => user.id === formValue.owner_id) ?? "Unassigned";
+    formValue.assignedUserId = this.users.find(user => user.id === formValue.assignedUserId)?.id ?? null;
 
     if (this.isEditMode) {
       const updates = { id: this.data.task?.id, ...formValue };

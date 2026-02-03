@@ -47,7 +47,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   selectProject(project: Project): void {
-    if (project.is_active === 0) return;
+    if (!project.isActive) return;
     this.selectedProject = project;
     this.projectSelected.emit(project.id);
   }
@@ -145,16 +145,16 @@ export class ProjectListComponent implements OnInit {
 
     if (!project.id) return;
 
-    const call = project.is_active === 1
+    const call = project.isActive
       ? this.api.disableProject(project.id)
       : this.api.enableProject(project.id);
 
     call.subscribe({
       next: () => {
-        project.is_active = project.is_active === 1 ? 0 : 1;
+        project.isActive = !project.isActive;
         
         // If disabling the selected project, clear selection
-        if (project.is_active === 0 && this.selectedProject?.id === project.id) {
+        if (!project.isActive && this.selectedProject?.id === project.id) {
           this.selectedProject = undefined;
           this.projectSelected.emit(undefined as any);
         }

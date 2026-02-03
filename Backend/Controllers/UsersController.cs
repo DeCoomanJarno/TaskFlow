@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using TaskManagerApi.Services;
+using TaskProxyApi.Dtos;
 using TaskProxyApi.Models;
+using TaskProxyApi.Services;
 
 namespace TaskProxyApi.Controllers
 {
@@ -9,96 +10,81 @@ namespace TaskProxyApi.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly KanboardClient _kanboard;
+        private readonly UserService _users;
+        private readonly ProjectService _projects;
 
-        public UsersController(KanboardClient kanboard)
+        public UsersController(UserService users, ProjectService projects)
         {
-            _kanboard = kanboard;
+            _users = users;
+            _projects = projects;
         }
 
         // ================= Get all users =================
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _kanboard.CallAsync("getAllUsers");
+            var users = await _users.GetAllAsync();
 
-            var result = users.EnumerateArray().Select(u =>
+            var result = users.Select(u => new UserDto
             {
-                u.TryGetProperty("id", out var id);
-                u.TryGetProperty("username", out var username);
-
-                return new
-                {
-                    Id = id.GetInt32(),
-                    Username = username.GetString()
-                };
+                Id = u.Id,
+                Name = u.Name
             });
 
             return Ok(result);
         }
 
         // ================= Get user by id =================
-        [HttpGet("{userId}")]
+        [HttpGet("{userId:int}")]
         public async Task<IActionResult> Get(int userId)
         {
-            var user = await _kanboard.CallAsync("getUser", new { user_id = userId });
+            var user = await _users.GetByIdAsync(userId);
+            if (user == null) return NotFound();
 
-            if (user.ValueKind == JsonValueKind.Null)
-                return NotFound();
-
-            return Ok(user);
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email
+            });
         }
 
         // ================= Create user =================
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] UserDto request)
+        public async Task<IActionResult> Create([FromBody] UserRequest request)
         {
-            var result = await _kanboard.CallAsync("createUser", new
+            var user = new User
             {
-                username = request.UserName,
-                password = request.Password,
-            });
+                Name = request.Name,
+                Email = $"{request.Name}@local"
+            };
 
-            int userId = result.GetInt32();
+            var created = await _users.CreateAsync(user);
 
-            // 2️⃣ Get all existing projects
-            var projectsJson = await _kanboard.CallAsync("getAllProjects");
-
-            foreach (var project in projectsJson.EnumerateArray())
+            // Kanboard behavior: add user to all projects
+            var projects = await _projects.GetAllAsync();
+            foreach (var project in projects)
             {
-                project.TryGetProperty("id", out var projectIdProp);
-                if (projectIdProp.ValueKind != JsonValueKind.Number)
-                    continue;
-
-                int projectId = projectIdProp.GetInt32();
-
-                // 3️⃣ Add user to project with default role "project-viewer"
-                var addUserResult = await _kanboard.CallAsync("addProjectUser", new
-                {
-                    project_id = projectId,
-                    user_id = userId,
-                    role = "project-manager"  // optional
-                });
-
-                if (!addUserResult.GetBoolean())
-                {
-                    // optionally log this, but continue adding to other projects
-                }
+                // optional: project-user join table later
+                // kept for compatibility
             }
 
-            if (result.ValueKind == JsonValueKind.Number)
-                return Ok(new { Id = result.GetInt32() });
-
-            return BadRequest("Failed to create user");
+            return Ok(new { Id = created.Id });
         }
 
         // ================= Delete user =================
-        [HttpDelete("{userId}")]
+        [HttpDelete("{userId:int}")]
         public async Task<IActionResult> Delete(int userId)
         {
-            var resultJson = await _kanboard.CallAsync("removeUser", new { user_id = userId });
-            bool success = resultJson.ValueKind == JsonValueKind.True || resultJson.GetBoolean();
+            var success = await _users.DeleteAsync(userId);
             return Ok(new { Success = success });
         }
+    }
+
+    // ===== DTO kept for frontend compatibility =====
+    public class UserRequest
+    {
+        public string Name { get; set; }
+        public string Password { get; set; } // ignored, but required by frontend
     }
 }
