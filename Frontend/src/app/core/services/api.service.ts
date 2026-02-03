@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Task } from '../models/task.model';
+import { Comment } from '../models/comment.model';
 import { Project } from '../models/project.model';
 import { User } from '../models/user.model';
 import { MoveTaskRequest } from '../models/move-task-request.model';
@@ -65,6 +66,18 @@ moveTask(taskId: number, request: MoveTaskRequest): Observable<{ success: boolea
     request
   );
 }
+
+  getTaskComments(taskId: number): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.baseUrl}/tasks/${taskId}/comments`);
+  }
+
+  addTaskComment(taskId: number, payload: { text: string; userId?: number | null }): Observable<Comment> {
+    return this.http.post<Comment>(`${this.baseUrl}/tasks/${taskId}/comments`, payload);
+  }
+
+  deleteTaskComment(taskId: number, commentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/tasks/${taskId}/comments/${commentId}`);
+  }
 
   // Users
   getUsers(): Observable<User[]> {

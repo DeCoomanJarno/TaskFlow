@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Text.Json;
 using TaskProxyApi.Services;
 using TaskProxyApi.Models;
@@ -17,13 +18,23 @@ namespace TaskManagerApi.Controllers
             public int SwimlaneId { get; set; } = 0; // ignored but kept for compatibility
         }
 
+        public class CreateCommentRequest
+        {
+            public string Text { get; set; } = string.Empty;
+            public int? UserId { get; set; }
+        }
+
         private readonly TaskService _tasks;
         private readonly ProjectService _projects;
+        private readonly CommentService _comments;
+        private readonly UserService _users;
 
-        public TasksController(TaskService tasks, ProjectService projects)
+        public TasksController(TaskService tasks, ProjectService projects, CommentService comments, UserService users)
         {
             _tasks = tasks;
             _projects = projects;
+            _comments = comments;
+            _users = users;
         }
 
         // ================= Create Task =================
@@ -141,6 +152,53 @@ namespace TaskManagerApi.Controllers
         {
             var success = await _tasks.DeleteAsync(taskId);
             return Ok(new { Success = success });
+        }
+
+        [HttpGet("{taskId:int}/comments")]
+        public async Task<IActionResult> GetComments(int taskId)
+        {
+            var task = await _tasks.GetByIdAsync(taskId);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var comments = await _comments.GetByTaskIdAsync(taskId);
+            var dtos = comments.Select(c => new TaskProxyApi.Dtos.CommentDto(c));
+            return Ok(dtos);
+        }
+
+        [HttpPost("{taskId:int}/comments")]
+        public async Task<IActionResult> AddComment(int taskId, [FromBody] CreateCommentRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Text))
+            {
+                return BadRequest("Comment text is required.");
+            }
+
+            if (request.UserId.HasValue && request.UserId.Value > 0)
+            {
+                var userExists = await _users.GetByIdAsync(request.UserId.Value);
+                if (userExists == null)
+                {
+                    return BadRequest("Invalid user.");
+                }
+            }
+
+            var comment = await _comments.AddToTaskAsync(taskId, request.Text, request.UserId);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new TaskProxyApi.Dtos.CommentDto(comment));
+        }
+
+        [HttpDelete("{taskId:int}/comments/{commentId:int}")]
+        public async Task<IActionResult> DeleteComment(int taskId, int commentId)
+        {
+            var success = await _comments.DeleteAsync(taskId, commentId);
+            return success ? Ok() : NotFound();
         }
     }
 }

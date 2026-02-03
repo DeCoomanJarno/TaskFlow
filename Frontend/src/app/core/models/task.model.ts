@@ -1,4 +1,6 @@
 // task.model.ts
+import { Comment } from './comment.model';
+
 export interface Task {
   id: number;
   title: string;
@@ -7,9 +9,10 @@ export interface Task {
   order: number;
   priority: number;
   projectId: number;
-  assignedUserId: number;
-  assignedUserName: string;
-  completedDate?: number;
+  assignedUserId?: number | null;
+  assignedUserName?: string;
+  completedDate?: string;
+  comments?: Comment[];
 }
 
 // Helper interface for column mapping

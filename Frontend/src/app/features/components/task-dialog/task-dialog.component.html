@@ -67,6 +67,81 @@
           <span class="indicator high">High</span>
         </div>
       </div>
+
+      @if (isEditMode) {
+        <div class="comment-section">
+          <div class="comment-header">
+            <h3>Comments</h3>
+            <span class="comment-count">{{ comments.length }}</span>
+          </div>
+
+          <div class="comment-form" [formGroup]="commentForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Add a comment</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                formControlName="text"
+                placeholder="Share an update or ask a question"></textarea>
+              <mat-icon matPrefix>chat</mat-icon>
+            </mat-form-field>
+
+            <div class="comment-actions">
+              <mat-form-field appearance="outline" class="comment-author">
+                <mat-label>Author</mat-label>
+                <mat-select formControlName="userId" placeholder="Select user">
+                  @for (user of users; track user.id) {
+                    <mat-option [value]="user.id">
+                      {{ user.name }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matPrefix>person</mat-icon>
+              </mat-form-field>
+
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                class="add-comment-btn"
+                (click)="addComment()"
+                [disabled]="commentForm.invalid">
+                <mat-icon>send</mat-icon>
+                <span>Add Comment</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="comment-list">
+            @if (comments.length) {
+              @for (comment of comments; track comment.id) {
+                <div class="comment-card">
+                  <div class="comment-meta">
+                    <div>
+                      <span class="comment-author-name">
+                        {{ comment.user?.name || 'Unknown' }}
+                      </span>
+                      <span class="comment-date">
+                        {{ comment.createdAt | date: 'MMM d, y • h:mm a' }}
+                      </span>
+                    </div>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="comment-delete"
+                      (click)="deleteComment(comment)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  <p class="comment-text">{{ comment.text }}</p>
+                </div>
+              }
+            } @else {
+              <p class="comment-empty">No comments yet. Start the conversation.</p>
+            }
+          </div>
+        </div>
+      }
     </mat-dialog-content>
 
     <mat-dialog-actions class="dialog-actions">

@@ -29,6 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CommentService>();
 
 // 🔹 MVC
 builder.Services.AddControllers()

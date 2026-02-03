@@ -11,6 +11,7 @@ namespace TaskProxyApi.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<Task> Tasks { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,18 @@ namespace TaskProxyApi.Data
                 .HasOne(t => t.AssignedUser)
                 .WithMany(u => u.AssignedTasks)
                 .HasForeignKey(t => t.AssignedUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Task)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(c => c.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
