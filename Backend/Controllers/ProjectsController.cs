@@ -13,11 +13,13 @@ namespace TaskManagerApi.Controllers
     {
         private readonly ProjectService _projects;
         private readonly UserService _users;
+        private readonly LogService _logs;
 
-        public ProjectsController(ProjectService projects, UserService users)
+        public ProjectsController(ProjectService projects, UserService users, LogService logs)
         {
             _projects = projects;
             _users = users;
+            _logs = logs;
         }
 
         // ===================== GET =====================
@@ -57,6 +59,7 @@ namespace TaskManagerApi.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var project = await _projects.CreateAsync(dto);
+            await LogActionAsync("project.create", "Project", project.Id);
 
             // automatically add all users (like Kanboard default)
             var users = await _users.GetAllAsync();
@@ -76,6 +79,10 @@ namespace TaskManagerApi.Controllers
             if (id != dto.Id) return BadRequest();
 
             var success = await _projects.UpdateAsync(dto);
+            if (success)
+            {
+                await LogActionAsync("project.update", "Project", dto.Id);
+            }
             return success ? Ok() : NotFound();
         }
 
@@ -84,6 +91,10 @@ namespace TaskManagerApi.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _projects.DeleteAsync(id);
+            if (success)
+            {
+                await LogActionAsync("project.delete", "Project", id);
+            }
             return success ? Ok() : NotFound();
         }
 
@@ -96,6 +107,7 @@ namespace TaskManagerApi.Controllers
 
             project.IsActive = true;
             await _projects.UpdateAsync(project);
+            await LogActionAsync("project.enable", "Project", project.Id);
             return Ok();
         }
 
@@ -107,9 +119,39 @@ namespace TaskManagerApi.Controllers
 
             project.IsActive = false;
             await _projects.UpdateAsync(project);
+            await LogActionAsync("project.disable", "Project", project.Id);
             return Ok();
+        }
+
+        private int? GetUserIdFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-User-Id", out var value) &&
+                int.TryParse(value.ToString(), out var userId) &&
+                userId > 0)
+            {
+                return userId;
+            }
+
+            return null;
+        }
+
+        private async Task<User?> GetAuthenticatedUserAsync()
+        {
+            var userId = GetUserIdFromHeader();
+            if (!userId.HasValue)
+            {
+                return null;
+            }
+
+            return await _users.GetByIdAsync(userId.Value);
+        }
+
+        private async System.Threading.Tasks.Task LogActionAsync(string action, string entity, int? entityId, string? metadata = null, User? actor = null)
+        {
+            actor ??= await GetAuthenticatedUserAsync();
+            var actorName = actor?.Name ?? "Anonymous";
+            await _logs.AddAsync(action, entity, entityId, actor?.Id, actorName, metadata);
         }
     }
 
 }
-

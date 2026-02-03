@@ -54,7 +54,7 @@
                   class="task-card-wrapper"
                   cdkDrag
                   [style.animation-delay]="i * 0.03 + 's'">
-                  <mat-card class="task-card" [class]="getTaskStatusClass(task)">
+                  <mat-card class="task-card" [class]="getTaskStatusClass(task)" (click)="openTaskDetail(task)">
                     <div class="card-header">
                       <div class="task-priority" [class]="getPriorityColor(task.priority)">
                         <div class="priority-indicator"></div>
@@ -62,10 +62,16 @@
                       </div>
                       
                       <div class="card-actions">
-                        <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                        <button mat-icon-button class="action-btn" (click)="editTask(task, $event)">
                           <mat-icon>edit</mat-icon>
                         </button>
-                        <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                        <button
+                          mat-icon-button
+                          class="action-btn delete"
+                          (click)="deleteTask(task, $event)"
+                          [disabled]="!canDeleteTasks()"
+                          matTooltip="Log in to delete tasks"
+                          [matTooltipDisabled]="canDeleteTasks()">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </div>
@@ -117,7 +123,7 @@
           <div 
             class="task-card-wrapper"
             [style.animation-delay]="i * 0.05 + 's'">
-            <mat-card class="task-card" [class]="getTaskStatusClass(task)">
+            <mat-card class="task-card" [class]="getTaskStatusClass(task)" (click)="openTaskDetail(task)">
               <div class="card-header">
                 <div class="task-priority" [class]="getPriorityColor(task.priority)">
                   <div class="priority-indicator"></div>
@@ -125,10 +131,16 @@
                 </div>
                 
                 <div class="card-actions">
-                  <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                  <button mat-icon-button class="action-btn" (click)="editTask(task, $event)">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                  <button
+                    mat-icon-button
+                    class="action-btn delete"
+                    (click)="deleteTask(task, $event)"
+                    [disabled]="!canDeleteTasks()"
+                    matTooltip="Log in to delete tasks"
+                    [matTooltipDisabled]="canDeleteTasks()">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -204,7 +216,7 @@
           <div 
             class="task-card-wrapper"
             [style.animation-delay]="i * 0.03 + 's'">
-            <mat-card class="task-card list-card" [class]="getTaskStatusClass(task)">
+            <mat-card class="task-card list-card" [class]="getTaskStatusClass(task)" (click)="openTaskDetail(task)">
               <mat-card-content class="list-card-content">
                 <div class="list-main">
                   <div class="task-status-badge" [class]="getTaskStatusClass(task)">
@@ -253,10 +265,16 @@
                 </div>
 
                 <div class="list-actions">
-                  <button mat-icon-button class="action-btn" (click)="editTask(task)">
+                  <button mat-icon-button class="action-btn" (click)="editTask(task, $event)">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button class="action-btn delete" (click)="deleteTask(task, $event)">
+                  <button
+                    mat-icon-button
+                    class="action-btn delete"
+                    (click)="deleteTask(task, $event)"
+                    [disabled]="!canDeleteTasks()"
+                    matTooltip="Log in to delete tasks"
+                    [matTooltipDisabled]="canDeleteTasks()">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>

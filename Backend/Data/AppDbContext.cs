@@ -12,6 +12,7 @@ namespace TaskProxyApi.Data
         public DbSet<Task> Tasks { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<LogEntry> LogEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,12 @@ namespace TaskProxyApi.Data
                 .HasOne(c => c.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<LogEntry>()
+                .HasOne(l => l.User)
+                .WithMany(u => u.Logs)
+                .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '../../../core/services/api.service';
 import { User } from '../../../core/models/user.model';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-management',
@@ -30,7 +31,8 @@ export class UserManagementComponent implements OnInit {
 
   constructor(
     private api: ApiService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -70,6 +72,11 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(user: User): void {
+    if (!this.auth.isLoggedIn()) {
+      alert('Log in to delete users.');
+      return;
+    }
+
     if (!confirm(`Delete user "${user.name}"?`)) return;
     
     // Note: You'll need to add a deleteUser method to your ApiService
@@ -77,5 +84,9 @@ export class UserManagementComponent implements OnInit {
      this.api.deleteUser(user.id).subscribe(() => {
        this.loadUsers();
      });
+  }
+
+  canDeleteUsers(): boolean {
+    return this.auth.isLoggedIn();
   }
 }

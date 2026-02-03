@@ -26,6 +26,17 @@
       </div>
       
       <div class="toolbar-actions">
+        @if (currentUser$ | async; as user) {
+          <button mat-stroked-button class="toolbar-login" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>{{ user.name }}</span>
+          </button>
+        } @else {
+          <button mat-stroked-button class="toolbar-login" (click)="openLogin()">
+            <mat-icon>login</mat-icon>
+            <span>Log in</span>
+          </button>
+        }
           <!--
           <button mat-icon-button class="toolbar-icon">
             <mat-icon>notifications</mat-icon>

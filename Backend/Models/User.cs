@@ -16,5 +16,6 @@ namespace TaskProxyApi.Models
 
         public ICollection<Task> AssignedTasks { get; set; } = new List<Task>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<LogEntry> Logs { get; set; } = new List<LogEntry>();
     }
 }

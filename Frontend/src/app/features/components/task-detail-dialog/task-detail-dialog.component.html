@@ -1,0 +1,104 @@
+<div class="detail-wrapper">
+  <div class="detail-header">
+    <div>
+      <h2 mat-dialog-title>{{ data.task.title }}</h2>
+      <p class="subtitle">Task details &amp; comments</p>
+    </div>
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="detail-content">
+    <div class="detail-section">
+      <h3>Overview</h3>
+      <p class="detail-description" *ngIf="data.task.description; else noDescription">
+        {{ data.task.description }}
+      </p>
+      <ng-template #noDescription>
+        <p class="detail-description empty">No description provided.</p>
+      </ng-template>
+      <div class="detail-meta">
+        <div class="meta-item" *ngIf="data.task.assignedUserName">
+          <mat-icon>person</mat-icon>
+          <span>{{ data.task.assignedUserName }}</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>flag</mat-icon>
+          <span>Priority {{ data.task.priority }}</span>
+        </div>
+        <div class="meta-item" *ngIf="data.task.completedDate">
+          <mat-icon>event</mat-icon>
+          <span>{{ data.task.completedDate | date: 'MMM d, y' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comment-section">
+      <div class="comment-header">
+        <h3>Comments</h3>
+        <span class="comment-count">{{ comments.length }}</span>
+      </div>
+
+      <div class="comment-form" [formGroup]="commentForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Add a comment</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            formControlName="text"
+            placeholder="Share an update or ask a question"
+            [disabled]="!isLoggedIn"></textarea>
+          <mat-icon matPrefix>chat</mat-icon>
+        </mat-form-field>
+        <div class="comment-actions">
+          <span class="comment-hint" *ngIf="!isLoggedIn">
+            Log in to add comments.
+          </span>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            class="add-comment-btn"
+            (click)="addComment()"
+            [disabled]="!isLoggedIn || commentForm.invalid">
+            <mat-icon>send</mat-icon>
+            <span>Add Comment</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="comment-list">
+        @if (comments.length) {
+          @for (comment of comments; track comment.id) {
+            <div class="comment-card">
+              <div class="comment-meta">
+                <div>
+                  <span class="comment-author-name">
+                    {{ comment.user?.name || 'Unknown' }}
+                  </span>
+                  <span class="comment-date">
+                    {{ comment.createdAt | date: 'MMM d, y • h:mm a' }}
+                  </span>
+                </div>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="comment-delete"
+                  (click)="deleteComment(comment)"
+                  [disabled]="!isLoggedIn"
+                  matTooltip="Log in to delete comments"
+                  [matTooltipDisabled]="isLoggedIn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <p class="comment-text">{{ comment.text }}</p>
+            </div>
+          }
+        } @else {
+          <p class="comment-empty">No comments yet. Start the conversation.</p>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>
