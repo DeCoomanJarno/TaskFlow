@@ -14,11 +14,17 @@ namespace TaskProxyApi.Services
             await _db.Tasks
                      .Where(t => t.ProjectId == projectId)
                      .Include(t => t.AssignedUser)
+                     .Include(t => t.Comments)
+                     .ThenInclude(c => c.User)
                      .OrderBy(t => t.Order)
                      .ToListAsync();
 
         public async Task<Task> GetByIdAsync(int id) =>
-            await _db.Tasks.Include(t => t.AssignedUser).FirstOrDefaultAsync(t => t.Id == id);
+            await _db.Tasks
+                .Include(t => t.AssignedUser)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
         public async Task<Task> CreateAsync(Task task)
         {

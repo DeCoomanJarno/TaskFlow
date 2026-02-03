@@ -29,6 +29,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CommentService>();
+builder.Services.AddScoped<LogService>();
+builder.Services.Configure<AuditLogSettings>(builder.Configuration.GetSection("AuditLog"));
 
 // 🔹 MVC
 builder.Services.AddControllers()

@@ -40,8 +40,10 @@
           <button 
             mat-icon-button 
             class="action-btn delete"
-            matTooltip="Delete user"
-            (click)="deleteUser(user)">
+            matTooltip="Log in to delete users"
+            [matTooltipDisabled]="canDeleteUsers()"
+            (click)="deleteUser(user)"
+            [disabled]="!canDeleteUsers()">
             <mat-icon>delete</mat-icon>
           </button>
         </div>

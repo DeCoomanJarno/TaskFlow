@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { ProjectListComponent } from './features/components/project-list/project-list.component';
 import { TaskBoardComponent } from './features/components/task-board/task-board.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -8,6 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UserManagementComponent } from './features/components/user-management/user-management.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AuthService } from './core/services/auth.service';
+import { LoginDialogComponent } from './features/components/login-dialog/login-dialog.component';
+import { Observable } from 'rxjs';
+import { User } from './core/models/user.model';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +23,8 @@ import { UserManagementComponent } from './features/components/user-management/u
     MatSidenavModule,
     MatToolbarModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.less'
@@ -27,8 +32,26 @@ import { UserManagementComponent } from './features/components/user-management/u
 export class AppComponent {
   title = 'task-manager-frontend';
   currentView: 'tasks' | 'users' = 'tasks';
+  currentUser$: Observable<User | null>;
+
+  constructor(
+    private dialog: MatDialog,
+    private auth: AuthService
+  ) {
+    this.currentUser$ = this.auth.currentUser$;
+  }
   
   switchView(view: 'tasks' | 'users') {
     this.currentView = view;
+  }
+
+  openLogin() {
+    this.dialog.open(LoginDialogComponent, {
+      width: '400px'
+    });
+  }
+
+  logout() {
+    this.auth.logout();
   }
 }

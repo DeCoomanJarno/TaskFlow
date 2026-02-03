@@ -1,4 +1,6 @@
-﻿using Task = TaskProxyApi.Models.Task;
+﻿using System;
+using System.Linq;
+using Task = TaskProxyApi.Models.Task;
 
 namespace TaskProxyApi.Dtos
 {
@@ -15,7 +17,10 @@ namespace TaskProxyApi.Dtos
             ProjectId = task.ProjectId;
             AssignedUserId = task.AssignedUserId;
             CompletedDate = task.CompletedDate;
-            Comments = task.Comments;
+            Comments = task.Comments?
+                .OrderBy(c => c.CreatedAt)
+                .Select(c => new CommentDto(c))
+                .ToArray() ?? Array.Empty<CommentDto>();
         }
         public int Id { get; set; }
         public string Title { get; set; } = null!;
@@ -26,7 +31,7 @@ namespace TaskProxyApi.Dtos
         public int? AssignedUserId { get; set; }
         public int ProjectId { get; set; }
         public string CompletedDate { get; set; } = string.Empty;
-        public string[] Comments { get; set; } = new string[0];
+        public CommentDto[] Comments { get; set; } = Array.Empty<CommentDto>();
     }
 
     public class CreateTaskDto

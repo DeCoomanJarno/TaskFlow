@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Text.Json;
 using TaskProxyApi.Services;
 using TaskProxyApi.Models;
@@ -17,13 +18,24 @@ namespace TaskManagerApi.Controllers
             public int SwimlaneId { get; set; } = 0; // ignored but kept for compatibility
         }
 
+        public class CreateCommentRequest
+        {
+            public string Text { get; set; } = string.Empty;
+        }
+
         private readonly TaskService _tasks;
         private readonly ProjectService _projects;
+        private readonly CommentService _comments;
+        private readonly UserService _users;
+        private readonly LogService _logs;
 
-        public TasksController(TaskService tasks, ProjectService projects)
+        public TasksController(TaskService tasks, ProjectService projects, CommentService comments, UserService users, LogService logs)
         {
             _tasks = tasks;
             _projects = projects;
+            _comments = comments;
+            _users = users;
+            _logs = logs;
         }
 
         // ================= Create Task =================
@@ -70,6 +82,7 @@ namespace TaskManagerApi.Controllers
 
 
             var created = await _tasks.CreateAsync(task);
+            await LogActionAsync("task.create", "Task", created.Id);
             return Ok(new { Id = created.Id });
         }
 
@@ -117,6 +130,7 @@ namespace TaskManagerApi.Controllers
 
             // tags are ignored for now, but endpoint accepts them
             await _tasks.UpdateAsync(task);
+            await LogActionAsync("task.update", "Task", task.Id);
             return Ok(new { Success = true });
         }
 
@@ -132,6 +146,7 @@ namespace TaskManagerApi.Controllers
             task.Order = request.Position;
 
             await _tasks.UpdateAsync(task);
+            await LogActionAsync("task.move", "Task", task.Id, $"columnId={request.ColumnId},position={request.Position}");
             return Ok(new { Success = true });
         }
 
@@ -139,8 +154,103 @@ namespace TaskManagerApi.Controllers
         [HttpDelete("{taskId:int}")]
         public async Task<IActionResult> Delete(int taskId)
         {
+            var actor = await GetAuthenticatedUserAsync();
+            if (actor == null)
+            {
+                return Forbid();
+            }
+
             var success = await _tasks.DeleteAsync(taskId);
+            if (success)
+            {
+                await LogActionAsync("task.delete", "Task", taskId, null, actor);
+            }
             return Ok(new { Success = success });
+        }
+
+        [HttpGet("{taskId:int}/comments")]
+        public async Task<IActionResult> GetComments(int taskId)
+        {
+            var task = await _tasks.GetByIdAsync(taskId);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var comments = await _comments.GetByTaskIdAsync(taskId);
+            var dtos = comments.Select(c => new TaskProxyApi.Dtos.CommentDto(c));
+            return Ok(dtos);
+        }
+
+        [HttpPost("{taskId:int}/comments")]
+        public async Task<IActionResult> AddComment(int taskId, [FromBody] CreateCommentRequest request)
+        {
+            var actor = await GetAuthenticatedUserAsync();
+            if (actor == null)
+            {
+                return Forbid();
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Text))
+            {
+                return BadRequest("Comment text is required.");
+            }
+
+            var comment = await _comments.AddToTaskAsync(taskId, request.Text, actor.Id);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            await LogActionAsync("comment.add", "TaskComment", comment.Id, $"taskId={taskId}", actor);
+            return Ok(new TaskProxyApi.Dtos.CommentDto(comment));
+        }
+
+        [HttpDelete("{taskId:int}/comments/{commentId:int}")]
+        public async Task<IActionResult> DeleteComment(int taskId, int commentId)
+        {
+            var actor = await GetAuthenticatedUserAsync();
+            if (actor == null)
+            {
+                return Forbid();
+            }
+
+            var success = await _comments.DeleteAsync(taskId, commentId);
+            if (success)
+            {
+                await LogActionAsync("comment.delete", "TaskComment", commentId, $"taskId={taskId}", actor);
+            }
+            return success ? Ok() : NotFound();
+        }
+
+        private int? GetUserIdFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-User-Id", out var value) &&
+                int.TryParse(value.ToString(), out var userId) &&
+                userId > 0)
+            {
+                return userId;
+            }
+
+            return null;
+        }
+
+        private async Task<User?> GetAuthenticatedUserAsync()
+        {
+            var userId = GetUserIdFromHeader();
+            if (!userId.HasValue)
+            {
+                return null;
+            }
+
+            return await _users.GetByIdAsync(userId.Value);
+        }
+
+        private async Task LogActionAsync(string action, string entity, int? entityId, string? metadata = null, User? actor = null)
+        {
+            actor ??= await GetAuthenticatedUserAsync();
+            var actorName = actor?.Name ?? "Anonymous";
+            await _logs.AddAsync(action, entity, entityId, actor?.Id, actorName, metadata);
         }
     }
 }

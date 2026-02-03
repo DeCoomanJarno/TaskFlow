@@ -1,0 +1,27 @@
+<div class="login-wrapper">
+  <div class="login-header">
+    <h2 mat-dialog-title>Log in</h2>
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Select user</mat-label>
+      <mat-select [(value)]="selectedUserId">
+        @for (user of users; track user.id) {
+          <mat-option [value]="user.id">{{ user.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>person</mat-icon>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="dialogRef.close()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="login()" [disabled]="!selectedUserId">
+      Log in
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -6,12 +6,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TaskDialogComponent } from '../task-dialog/task-dialog.component';
+import { TaskDetailDialogComponent } from '../task-detail-dialog/task-detail-dialog.component';
 import { Task } from '../../../core/models/task.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { filter, find, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { AuthService } from '../../../core/services/auth.service';
 
 export type TaskStatus = 'new' | 'in-progress' | 'completed';
 export type ViewMode = 'kanban' | 'grid' | 'list';
@@ -75,7 +77,8 @@ export class TaskBoardComponent {
 
   constructor(
     private api: ApiService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private auth: AuthService
   ) {}
 
   ngOnInit() {
@@ -228,7 +231,8 @@ export class TaskBoardComponent {
     }
   }
 
-  editTask(task: Task) {
+  editTask(task: Task, event?: Event) {
+    event?.stopPropagation();
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '500px',
       data: { task }
@@ -241,8 +245,20 @@ export class TaskBoardComponent {
     });
   }
 
+  openTaskDetail(task: Task) {
+    this.dialog.open(TaskDetailDialogComponent, {
+      width: '700px',
+      data: { task }
+    });
+  }
+
   deleteTask(task: Task, event?: Event) {
     event?.stopPropagation();
+
+    if (!this.auth.isLoggedIn()) {
+      alert('Log in to delete tasks.');
+      return;
+    }
     
     if (!confirm(`Delete "${task.title}"?`)) return;
 
@@ -311,5 +327,9 @@ export class TaskBoardComponent {
   getColumnTaskCount(columnId: TaskStatus): number {
     const column = this.columns.find(col => col.id === columnId);
     return column ? column.tasks.length : 0;
+  }
+
+  canDeleteTasks(): boolean {
+    return this.auth.isLoggedIn();
   }
 }

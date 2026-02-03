@@ -12,11 +12,13 @@ namespace TaskProxyApi.Controllers
     {
         private readonly UserService _users;
         private readonly ProjectService _projects;
+        private readonly LogService _logs;
 
-        public UsersController(UserService users, ProjectService projects)
+        public UsersController(UserService users, ProjectService projects, LogService logs)
         {
             _users = users;
             _projects = projects;
+            _logs = logs;
         }
 
         // ================= Get all users =================
@@ -60,6 +62,7 @@ namespace TaskProxyApi.Controllers
             };
 
             var created = await _users.CreateAsync(user);
+            await LogActionAsync("user.create", "User", created.Id);
 
             // Kanboard behavior: add user to all projects
             var projects = await _projects.GetAllAsync();
@@ -76,8 +79,48 @@ namespace TaskProxyApi.Controllers
         [HttpDelete("{userId:int}")]
         public async Task<IActionResult> Delete(int userId)
         {
+            var actor = await GetAuthenticatedUserAsync();
+            if (actor == null)
+            {
+                return Forbid();
+            }
+
             var success = await _users.DeleteAsync(userId);
+            if (success)
+            {
+                await LogActionAsync("user.delete", "User", userId, null, actor);
+            }
             return Ok(new { Success = success });
+        }
+
+        private int? GetUserIdFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-User-Id", out var value) &&
+                int.TryParse(value.ToString(), out var userId) &&
+                userId > 0)
+            {
+                return userId;
+            }
+
+            return null;
+        }
+
+        private async Task<User?> GetAuthenticatedUserAsync()
+        {
+            var userId = GetUserIdFromHeader();
+            if (!userId.HasValue)
+            {
+                return null;
+            }
+
+            return await _users.GetByIdAsync(userId.Value);
+        }
+
+        private async Task LogActionAsync(string action, string entity, int? entityId, string? metadata = null, User? actor = null)
+        {
+            actor ??= await GetAuthenticatedUserAsync();
+            var actorName = actor?.Name ?? "Anonymous";
+            await _logs.AddAsync(action, entity, entityId, actor?.Id, actorName, metadata);
         }
     }
 
