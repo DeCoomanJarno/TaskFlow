@@ -11,6 +11,7 @@ import { User } from '../../../core/models/user.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { Task } from '../../../core/models/task.model';
+import { Comment } from '../../../core/models/comment.model';
 
 export interface TaskDialogData {
   task?: Task;
@@ -36,6 +37,8 @@ export interface TaskDialogData {
 export class TaskDialogComponent implements OnInit {
    users: User[] = [];
   taskForm!: FormGroup;
+  commentForm!: FormGroup;
+  comments: Comment[] = [];
   isEditMode: boolean = false;
 
   constructor(
@@ -56,6 +59,16 @@ export class TaskDialogComponent implements OnInit {
       priority: [this.data?.task?.priority || 5],
       projectId: [this.data?.task?.projectId || -1],
     });
+
+    this.commentForm = this.fb.group({
+      text: ['', [Validators.required, Validators.maxLength(500)]],
+      userId: [null]
+    });
+
+    if (this.isEditMode && this.data?.task?.id) {
+      this.comments = this.data.task?.comments ?? [];
+      this.refreshComments(this.data.task.id);
+    }
   }
 
   save() {
@@ -88,6 +101,41 @@ export class TaskDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+  }
+
+  refreshComments(taskId: number) {
+    this.api.getTaskComments(taskId).subscribe({
+      next: (comments) => this.comments = comments,
+      error: (err) => console.error('Failed to load comments', err)
+    });
+  }
+
+  addComment() {
+    if (!this.isEditMode || !this.data?.task?.id || this.commentForm.invalid) {
+      return;
+    }
+
+    const { text, userId } = this.commentForm.value;
+    this.api.addTaskComment(this.data.task.id, { text, userId }).subscribe({
+      next: (comment) => {
+        this.comments = [...this.comments, comment];
+        this.commentForm.reset({ text: '', userId: null });
+      },
+      error: (err) => console.error('Failed to add comment', err)
+    });
+  }
+
+  deleteComment(comment: Comment) {
+    if (!this.isEditMode || !this.data?.task?.id) {
+      return;
+    }
+
+    this.api.deleteTaskComment(this.data.task.id, comment.id).subscribe({
+      next: () => {
+        this.comments = this.comments.filter(item => item.id !== comment.id);
+      },
+      error: (err) => console.error('Failed to delete comment', err)
+    });
   }
 
   getPriorityLabel(value: number): string {
