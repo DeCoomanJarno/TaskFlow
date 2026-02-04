@@ -71,7 +71,7 @@ moveTask(taskId: number, request: MoveTaskRequest): Observable<{ success: boolea
     return this.http.get<Comment[]>(`${this.baseUrl}/tasks/${taskId}/comments`);
   }
 
-  addTaskComment(taskId: number, payload: { text: string }): Observable<Comment> {
+  addTaskComment(taskId: number, payload: { text: string; userId?: number | null }): Observable<Comment> {
     return this.http.post<Comment>(`${this.baseUrl}/tasks/${taskId}/comments`, payload);
   }
 

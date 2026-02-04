@@ -16,6 +16,12 @@ namespace TaskProxyApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.ParentProject)
+                .WithMany(p => p.Categories)
+                .HasForeignKey(p => p.ParentProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Task → Project relationship
             modelBuilder.Entity<Task>()
                 .HasOne(t => t.Project)

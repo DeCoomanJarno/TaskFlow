@@ -31,13 +31,15 @@ import { Project } from '../../../core/models/project.model';
 export class ProjectDialogComponent {
 projectForm: FormGroup;
   isEditMode: boolean;
+  parentOptions: Project[];
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ProjectDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { project?: Project }
+    @Inject(MAT_DIALOG_DATA) public data: { project?: Project; parentOptions?: Project[]; defaultParentId?: number | null }
   ) {
     this.isEditMode = !!data?.project?.id;
+    this.parentOptions = data?.parentOptions ?? [];
     this.projectForm = this.createForm(data?.project);
   }
 
@@ -45,6 +47,7 @@ projectForm: FormGroup;
     return this.fb.group({
       name: [project?.name || '', Validators.required],
       description: [project?.description || ''],
+      parentProjectId: [project?.parentProjectId ?? this.data?.defaultParentId ?? null],
       endDate: [project?.endDate || ''],
       isActive: [project?.isActive || true]
     });

@@ -3,7 +3,7 @@
     <div class="board-header">
       <div class="header-left">
         <h1 class="board-title">Tasks</h1>
-        <div class="task-count">{{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}</div>
+        <div class="task-count">{{ displayTasks.length }} {{ displayTasks.length === 1 ? 'task' : 'tasks' }}</div>
       </div>
       
       <div class="header-actions">
@@ -24,6 +24,47 @@
           <span>Add Task</span>
         </button>
       </div>
+    </div>
+
+    <div class="board-filters">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Search tasks</mat-label>
+        <input
+          matInput
+          [(ngModel)]="filterText"
+          (ngModelChange)="applyFilters()"
+          placeholder="Filter by title or description">
+        @if (filterText) {
+          <button matSuffix mat-icon-button aria-label="Clear search" (click)="filterText = ''; applyFilters()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Assignee</mat-label>
+        <mat-select [(ngModel)]="selectedUserId" (selectionChange)="applyFilters()">
+          <mat-option [value]="null">All users</mat-option>
+          @for (user of users; track user.id) {
+            <mat-option [value]="user.id">{{ user.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sort by</mat-label>
+        <mat-select [(ngModel)]="sortOption" (selectionChange)="applyFilters()">
+          <mat-option value="order">Board order</mat-option>
+          <mat-option value="priority">Priority (high to low)</mat-option>
+          <mat-option value="title">Title (A to Z)</mat-option>
+          <mat-option value="assignee">Assignee (A to Z)</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button class="clear-filters" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Clear
+      </button>
     </div>
 
     <!-- Kanban View -->
@@ -119,7 +160,7 @@
     <!-- Grid View -->
     @if (viewMode === 'grid') {
       <div class="tasks-container grid-view">
-        @for (task of tasks; track task.id; let i = $index) {
+        @for (task of displayTasks; track task.id; let i = $index) {
           <div 
             class="task-card-wrapper"
             [style.animation-delay]="i * 0.05 + 's'">
@@ -189,7 +230,7 @@
           </div>
         }
         
-        @if (tasks.length === 0) {
+        @if (displayTasks.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
               <mat-icon>task_alt</mat-icon>
@@ -212,7 +253,7 @@
     <!-- List View -->
     @if (viewMode === 'list') {
       <div class="tasks-container list-view">
-        @for (task of tasks; track task.id; let i = $index) {
+        @for (task of displayTasks; track task.id; let i = $index) {
           <div 
             class="task-card-wrapper"
             [style.animation-delay]="i * 0.03 + 's'">
@@ -283,7 +324,7 @@
           </div>
         }
         
-        @if (tasks.length === 0) {
+        @if (displayTasks.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
               <mat-icon>task_alt</mat-icon>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -11,9 +11,14 @@ import { Task } from '../../../core/models/task.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../../core/services/auth.service';
+import { User } from '../../../core/models/user.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
 
 export type TaskStatus = 'new' | 'in-progress' | 'completed';
 export type ViewMode = 'kanban' | 'grid' | 'list';
@@ -37,15 +42,25 @@ export interface TaskColumn {
     MatButtonModule,
     MatMenuModule,
     MatTooltipModule,
-    DragDropModule
+    DragDropModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule
   ],
   templateUrl: './task-board.component.html',
   styleUrl: './task-board.component.less'
 })
-export class TaskBoardComponent {
-    selectedProjectId?: number;
+export class TaskBoardComponent implements OnInit, OnDestroy {
+  selectedProjectId?: number;
   tasks: Task[] = [];
+  displayTasks: Task[] = [];
+  users: User[] = [];
   viewMode: ViewMode = 'kanban';
+  filterText = '';
+  selectedUserId: number | null = null;
+  sortOption: 'order' | 'priority' | 'title' | 'assignee' = 'order';
+  private refreshSubscription?: Subscription;
 
   // Column configuration - UPDATE THESE IDs based on your Kanboard setup
   columns: TaskColumn[] = [
@@ -82,17 +97,28 @@ export class TaskBoardComponent {
   ) {}
 
   ngOnInit() {
-    // You can load column mappings from Kanboard API if needed
-    // this.loadKanboardColumns();
+    this.refreshSubscription = interval(15000).subscribe(() => this.refreshTasks());
   }
 
-  loadTasks(projectId: number) {
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
+  }
+
+  loadTasks(projectId: number | undefined) {
+    if (!projectId) {
+      this.selectedProjectId = undefined;
+      this.tasks = [];
+      this.displayTasks = [];
+      this.columns.forEach(column => column.tasks = []);
+      return;
+    }
     this.selectedProjectId = projectId;
 
     forkJoin({
       users: this.api.getUsers(),
       tasks: this.api.getTasks(projectId)
     }).subscribe(({ users, tasks }) => {
+      this.users = users.sort((a, b) => a.name.localeCompare(b.name));
       this.tasks = tasks.map(task => {
         const owner = users.find(u => u.id === task.assignedUserId);
         return {
@@ -101,16 +127,68 @@ export class TaskBoardComponent {
         };
       });
 
-      this.organizeTasksByStatus();
+      this.applyFilters();
     });
   }
 
-  organizeTasksByStatus() {
+  refreshTasks(): void {
+    if (!this.selectedProjectId) {
+      return;
+    }
+    this.loadTasks(this.selectedProjectId);
+  }
+
+  applyFilters(): void {
+    const search = this.filterText.trim().toLowerCase();
+    let filtered = [...this.tasks];
+
+    if (search) {
+      filtered = filtered.filter(task => {
+        const title = task.title?.toLowerCase() ?? '';
+        const description = task.description?.toLowerCase() ?? '';
+        return title.includes(search) || description.includes(search);
+      });
+    }
+
+    if (this.selectedUserId != null) {
+      filtered = filtered.filter(task => task.assignedUserId === this.selectedUserId);
+    }
+
+    this.displayTasks = this.sortTasks(filtered);
+    this.organizeTasksByStatus(this.displayTasks);
+  }
+
+  sortTasks(tasks: Task[]): Task[] {
+    switch (this.sortOption) {
+      case 'priority':
+        return tasks.sort((a, b) => b.priority - a.priority || a.title.localeCompare(b.title));
+      case 'title':
+        return tasks.sort((a, b) => a.title.localeCompare(b.title));
+      case 'assignee':
+        return tasks.sort((a, b) => {
+          const nameA = a.assignedUserName ?? 'Unassigned';
+          const nameB = b.assignedUserName ?? 'Unassigned';
+          return nameA.localeCompare(nameB) || a.title.localeCompare(b.title);
+        });
+      case 'order':
+      default:
+        return tasks.sort((a, b) => a.order - b.order);
+    }
+  }
+
+  clearFilters(): void {
+    this.filterText = '';
+    this.selectedUserId = null;
+    this.sortOption = 'order';
+    this.applyFilters();
+  }
+
+  organizeTasksByStatus(sourceTasks: Task[]) {
     // Reset columns
     this.columns.forEach(column => column.tasks = []);
 
     // Organize tasks into columns based on their columnId from Kanboard
-    this.tasks.forEach(task => {
+    sourceTasks.forEach(task => {
       const column = this.columns.find(col => col.kanboardColumnId === task.columnId);
       if (column) {
         column.tasks.push(task);
@@ -264,7 +342,7 @@ export class TaskBoardComponent {
 
     this.api.deleteTask(task.id).subscribe(() => {
       this.tasks = this.tasks.filter(t => t.id !== task.id);
-      this.organizeTasksByStatus();
+      this.applyFilters();
     });
   }
 

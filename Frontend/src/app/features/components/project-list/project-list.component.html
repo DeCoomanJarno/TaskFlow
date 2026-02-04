@@ -1,7 +1,7 @@
 <div class="project-list">
   <!-- Header with Add Button -->
   <div class="project-header">
-            <h2>Custom Screens</h2>
+    <h2 class="header-title">Categories</h2>
     <button 
       mat-mini-fab 
       color="primary" 
@@ -12,9 +12,31 @@
     </button>
   </div>
 
+  <div class="project-filters">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Project</mat-label>
+      <mat-select [(ngModel)]="selectedParentId" (selectionChange)="onParentChange()">
+        <mat-option [value]="null">All projects</mat-option>
+        @for (project of parentProjects; track project.id) {
+          <mat-option [value]="project.id">{{ project.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filter categories</mat-label>
+      <input matInput [(ngModel)]="filterText" placeholder="Search name or description">
+      @if (filterText) {
+        <button matSuffix mat-icon-button aria-label="Clear filter" (click)="filterText = ''">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
+
   <!-- Project Items -->
   <div class="project-items">
-    @for (project of projects; track project.id) {
+    @for (project of filteredCategories; track project.id) {
       <div
         class="project-item"
         [class.selected]="isSelected(project)"
@@ -74,20 +96,20 @@
       </div>
     }
 
-    @if (projects.length === 0) {
+    @if (filteredCategories.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <mat-icon>folder_off</mat-icon>
         </div>
-        <h3>No projects yet</h3>
-        <p>Get started by creating your first project</p>
+        <h3>No categories yet</h3>
+        <p>Get started by creating your first category</p>
         <button 
           mat-raised-button 
           color="primary" 
           (click)="openCreateDialog()"
           class="empty-action-btn">
           <mat-icon>add</mat-icon>
-          <span>Create Project</span>
+          <span>Create Category</span>
         </button>
       </div>
     }

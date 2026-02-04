@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -10,6 +10,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProjectDialogComponent } from '../project-dialog/project-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-project-list',
@@ -20,16 +25,23 @@ import { ProjectDialogComponent } from '../project-dialog/project-dialog.compone
     MatButtonModule,
     MatRippleModule,
     MatTooltipModule,
-    MatMenuModule
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule
   ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.less'
 })
-export class ProjectListComponent implements OnInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
 
   projects: Project[] = [];
   selectedProject?: Project;
-  @Output() projectSelected = new EventEmitter<number>();
+  selectedParentId: number | null = null;
+  filterText = '';
+  private refreshSubscription?: Subscription;
+  @Output() projectSelected = new EventEmitter<number | undefined>();
  
   constructor(
     private api: ApiService,
@@ -38,12 +50,63 @@ export class ProjectListComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.refreshSubscription = interval(15000).subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
   }
 
   load(): void {
     this.api.getProjects().subscribe(projects => {
       this.projects = projects;
+      this.ensureSelectionVisible();
     });
+  }
+
+  get hasHierarchy(): boolean {
+    return this.projects.some(project => project.parentProjectId != null);
+  }
+
+  get parentProjects(): Project[] {
+    return this.projects
+      .filter(project => project.parentProjectId == null)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get filteredCategories(): Project[] {
+    const search = this.filterText.trim().toLowerCase();
+    let categories = this.hasHierarchy
+      ? this.projects.filter(project => project.parentProjectId != null)
+      : this.projects;
+
+    if (this.selectedParentId != null) {
+      categories = categories.filter(project => project.parentProjectId === this.selectedParentId);
+    }
+
+    if (search) {
+      categories = categories.filter(project => {
+        const name = project.name?.toLowerCase() ?? '';
+        const description = project.description?.toLowerCase() ?? '';
+        return name.includes(search) || description.includes(search);
+      });
+    }
+
+    return categories.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  onParentChange(): void {
+    this.ensureSelectionVisible();
+  }
+
+  ensureSelectionVisible(): void {
+    if (!this.selectedProject) return;
+
+    const isVisible = this.filteredCategories.some(project => project.id === this.selectedProject?.id);
+    if (!isVisible) {
+      this.selectedProject = undefined;
+      this.projectSelected.emit(undefined);
+    }
   }
 
   selectProject(project: Project): void {
@@ -59,7 +122,10 @@ export class ProjectListComponent implements OnInit {
   openCreateDialog(): void {
     const dialogRef = this.dialog.open(ProjectDialogComponent, {
       width: '600px',
-      data: {}
+      data: {
+        parentOptions: this.parentProjects,
+        defaultParentId: this.selectedParentId
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -74,7 +140,10 @@ export class ProjectListComponent implements OnInit {
 
     const dialogRef = this.dialog.open(ProjectDialogComponent, {
       width: '600px',
-      data: { project }
+      data: {
+        project,
+        parentOptions: this.parentProjects.filter(parent => parent.id !== project.id)
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -127,7 +196,7 @@ export class ProjectListComponent implements OnInit {
           // If the deleted project was selected, clear selection
           if (this.selectedProject?.id === project.id) {
             this.selectedProject = undefined;
-            this.projectSelected.emit(undefined as any);
+            this.projectSelected.emit(undefined);
           }
           
           this.load(); // Reload the list
@@ -156,7 +225,7 @@ export class ProjectListComponent implements OnInit {
         // If disabling the selected project, clear selection
         if (!project.isActive && this.selectedProject?.id === project.id) {
           this.selectedProject = undefined;
-          this.projectSelected.emit(undefined as any);
+          this.projectSelected.emit(undefined);
         }
       },
       error: (error) => {
