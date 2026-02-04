@@ -24,6 +24,7 @@ namespace TaskProxyApi.Dtos
 
         public bool IsActive { get; set; } = true;
 
+        [Required]
         public int ProjectId { get; set; }
     }
 }

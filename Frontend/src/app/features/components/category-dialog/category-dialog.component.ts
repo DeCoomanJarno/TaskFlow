@@ -57,6 +57,7 @@ export class CategoryDialogComponent {
         isActive: formValue.isActive ?? true,
         id: this.data?.category?.id
       };
+      console.log(category)
       this.dialogRef.close(category);
     }
   }
