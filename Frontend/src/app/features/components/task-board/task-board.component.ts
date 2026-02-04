@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TaskDialogComponent } from '../task-dialog/task-dialog.component';
 import { TaskDetailDialogComponent } from '../task-detail-dialog/task-detail-dialog.component';
 import { Task } from '../../../core/models/task.model';
+import { Category } from '../../../core/models/category.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -53,6 +54,7 @@ export interface TaskColumn {
 })
 export class TaskBoardComponent implements OnInit, OnDestroy {
   selectedProjectId?: number;
+  selectedCategory?: Category;
   tasks: Task[] = [];
   displayTasks: Task[] = [];
   users: User[] = [];
@@ -104,19 +106,21 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.refreshSubscription?.unsubscribe();
   }
 
-  loadTasks(projectId: number | undefined) {
-    if (!projectId) {
+  loadTasks(category: Category | undefined) {
+    if (!category) {
       this.selectedProjectId = undefined;
+      this.selectedCategory = undefined;
       this.tasks = [];
       this.displayTasks = [];
       this.columns.forEach(column => column.tasks = []);
       return;
     }
-    this.selectedProjectId = projectId;
+    this.selectedCategory = category;
+    this.selectedProjectId = category.projectId;
 
     forkJoin({
       users: this.api.getUsers(),
-      tasks: this.api.getTasks(projectId)
+      tasks: this.api.getTasksByCategory(category.id!)
     }).subscribe(({ users, tasks }) => {
       this.users = users.sort((a, b) => a.name.localeCompare(b.name));
       this.tasks = tasks.map(task => {
@@ -132,10 +136,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   refreshTasks(): void {
-    if (!this.selectedProjectId) {
+    if (!this.selectedCategory?.id) {
       return;
     }
-    this.loadTasks(this.selectedProjectId);
+    this.loadTasks(this.selectedCategory);
   }
 
   applyFilters(): void {
@@ -266,8 +270,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Failed to move task:', error);
         // Refresh to restore correct state
-        if (this.selectedProjectId) {
-          this.loadTasks(this.selectedProjectId);
+        if (this.selectedCategory) {
+          this.loadTasks(this.selectedCategory);
         }
       }
     });
@@ -317,8 +321,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && this.selectedProjectId) {
-        this.loadTasks(this.selectedProjectId);
+      if (result && this.selectedCategory) {
+        this.loadTasks(this.selectedCategory);
       }
     });
   }
@@ -347,16 +351,16 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   openCreateTask() {
-    if (!this.selectedProjectId) return;
+    if (!this.selectedProjectId || !this.selectedCategory?.id) return;
 
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '500px',
-      data: { task: { projectId: this.selectedProjectId } }
+      data: { task: { projectId: this.selectedProjectId, categoryId: this.selectedCategory.id } }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadTasks(this.selectedProjectId!);
+        this.loadTasks(this.selectedCategory!);
       }
     });
   }

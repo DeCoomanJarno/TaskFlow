@@ -10,12 +10,42 @@ using TaskProxyApi.Data;
 namespace TaskProxyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202236000_AddCategoriesLayer")]
+    partial class AddCategoriesLayer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+
+            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Categories");
+                });
 
             modelBuilder.Entity("TaskProxyApi.Models.Comment", b =>
                 {
@@ -85,34 +115,6 @@ namespace TaskProxyApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("LogEntries");
-                });
-
-            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("TaskProxyApi.Models.Project", b =>
@@ -210,6 +212,17 @@ namespace TaskProxyApi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
+                {
+                    b.HasOne("TaskProxyApi.Models.Project", "Project")
+                        .WithMany("Categories")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("TaskProxyApi.Models.Comment", b =>
                 {
                     b.HasOne("TaskProxyApi.Models.Task", "Task")
@@ -238,17 +251,6 @@ namespace TaskProxyApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
-                {
-                    b.HasOne("TaskProxyApi.Models.Project", "Project")
-                        .WithMany("Categories")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("TaskProxyApi.Models.Task", b =>
                 {
                     b.HasOne("TaskProxyApi.Models.User", "AssignedUser")
@@ -256,16 +258,16 @@ namespace TaskProxyApi.Migrations
                         .HasForeignKey("AssignedUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("TaskProxyApi.Models.Category", "Category")
+                        .WithMany("Tasks")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TaskProxyApi.Models.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("TaskProxyApi.Models.Category", "Category")
-                        .WithMany("Tasks")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("AssignedUser");
 

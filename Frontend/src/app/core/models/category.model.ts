@@ -1,7 +1,7 @@
-export interface Project {
+export interface Category {
   id?: number;
   name: string;
   description?: string;
   isActive: boolean;
-  endDate: string;
+  projectId: number;
 }

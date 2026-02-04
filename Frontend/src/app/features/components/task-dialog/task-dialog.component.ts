@@ -58,6 +58,7 @@ export class TaskDialogComponent implements OnInit {
       assignedUserId: [this.data?.task?.assignedUserId || null],
       priority: [this.data?.task?.priority || 5],
       projectId: [this.data?.task?.projectId || -1],
+      categoryId: [this.data?.task?.categoryId || null],
     });
 
     this.commentForm = this.fb.group({

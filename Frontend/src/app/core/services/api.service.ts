@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Task } from '../models/task.model';
 import { Comment } from '../models/comment.model';
 import { Project } from '../models/project.model';
+import { Category } from '../models/category.model';
 import { User } from '../models/user.model';
 import { MoveTaskRequest } from '../models/move-task-request.model';
 import { environment } from '../../../environments/environment';
@@ -43,8 +44,8 @@ disableProject(id: number) {
   return this.http.post(`${this.baseUrl}/projects/${id}/disable`, {});
 }
 
-  getTasks(projectId: number): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.baseUrl}/projects/${projectId}/tasks`);
+  getTasksByCategory(categoryId: number): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.baseUrl}/categories/${categoryId}/tasks`);
   }
 
   // Tasks
@@ -58,6 +59,24 @@ updateTask(task: Task) {
 
   deleteTask(taskId: number) {
     return this.http.delete(`${this.baseUrl}/tasks/${taskId}`);
+  }
+
+  // Categories
+  getCategories(projectId?: number): Observable<Category[]> {
+    const params = projectId ? `?projectId=${projectId}` : '';
+    return this.http.get<Category[]>(`${this.baseUrl}/categories${params}`);
+  }
+
+  createCategory(category: Category) {
+    return this.http.post<{ categoryId: number }>(`${this.baseUrl}/categories`, category);
+  }
+
+  updateCategory(id: number, category: Category) {
+    return this.http.put(`${this.baseUrl}/categories/${id}`, category);
+  }
+
+  deleteCategory(id: number) {
+    return this.http.delete(`${this.baseUrl}/categories/${id}`);
   }
 
 moveTask(taskId: number, request: MoveTaskRequest): Observable<{ success: boolean }> {

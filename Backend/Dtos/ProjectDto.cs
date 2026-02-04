@@ -12,7 +12,6 @@ namespace TaskProxyApi.Dtos
             Description = project.Description;
             IsActive = project.IsActive;
             EndDate = project.EndDate;
-            ParentProjectId = project.ParentProjectId;
         }
         public int Id { get; set; }
 
@@ -24,7 +23,6 @@ namespace TaskProxyApi.Dtos
 
         public bool IsActive { get; set; } = true;
         public string EndDate { get; set; } = string.Empty;
-        public int? ParentProjectId { get; set; }
     }
     public class CreateProjectDto
     {

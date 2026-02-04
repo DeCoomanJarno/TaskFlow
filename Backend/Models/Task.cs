@@ -24,6 +24,11 @@ namespace TaskProxyApi.Models
         [ForeignKey(nameof(ProjectId))]
         public Project Project { get; set; }
 
+        public int? CategoryId { get; set; }
+
+        [ForeignKey(nameof(CategoryId))]
+        public Category Category { get; set; }
+
         public int? AssignedUserId { get; set; }
 
         [ForeignKey(nameof(AssignedUserId))]

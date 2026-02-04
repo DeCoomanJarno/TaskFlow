@@ -12,12 +12,14 @@ namespace TaskManagerApi.Controllers
     public class ProjectsController : ControllerBase
     {
         private readonly ProjectService _projects;
+        private readonly TaskService _tasks;
         private readonly UserService _users;
         private readonly LogService _logs;
 
-        public ProjectsController(ProjectService projects, UserService users, LogService logs)
+        public ProjectsController(ProjectService projects, TaskService tasks, UserService users, LogService logs)
         {
             _projects = projects;
+            _tasks = tasks;
             _users = users;
             _logs = logs;
         }
@@ -47,9 +49,9 @@ namespace TaskManagerApi.Controllers
             var project = await _projects.GetByIdAsync(projectId);
             if (project == null) return NotFound();
 
-            var taskList = project.Tasks.Select(t => new TaskDto(t)).ToArray();
+            var taskList = await _tasks.GetAllByProjectAsync(projectId);
 
-            return Ok(taskList);
+            return Ok(taskList.Select(t => new TaskDto(t)));
         }
 
         // ===================== CREATE =====================

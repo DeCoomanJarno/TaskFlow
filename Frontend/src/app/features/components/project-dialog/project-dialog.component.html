@@ -20,16 +20,6 @@
             rows="3"></textarea>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Parent project</mat-label>
-          <mat-select formControlName="parentProjectId">
-            <mat-option [value]="null">Top-level project</mat-option>
-            @for (project of parentOptions; track project.id) {
-              <mat-option [value]="project.id">{{ project.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>End Date</mat-label>

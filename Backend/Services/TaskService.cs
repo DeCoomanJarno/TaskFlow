@@ -19,6 +19,15 @@ namespace TaskProxyApi.Services
                      .OrderBy(t => t.Order)
                      .ToListAsync();
 
+        public async Task<List<Task>> GetAllByCategoryAsync(int categoryId) =>
+            await _db.Tasks
+                     .Where(t => t.CategoryId == categoryId)
+                     .Include(t => t.AssignedUser)
+                     .Include(t => t.Comments)
+                     .ThenInclude(c => c.User)
+                     .OrderBy(t => t.Order)
+                     .ToListAsync();
+
         public async Task<Task> GetByIdAsync(int id) =>
             await _db.Tasks
                 .Include(t => t.AssignedUser)
@@ -32,7 +41,7 @@ namespace TaskProxyApi.Services
             if (task.Order == 0)
             {
                 var maxOrder = await _db.Tasks
-                                        .Where(t => t.ProjectId == task.ProjectId)
+                                        .Where(t => t.CategoryId == task.CategoryId)
                                         .MaxAsync(t => (int?)t.Order) ?? 0;
                 task.Order = maxOrder + 1;
             }
