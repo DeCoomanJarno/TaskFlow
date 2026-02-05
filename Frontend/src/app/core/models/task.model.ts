@@ -9,6 +9,7 @@ export interface Task {
   order: number;
   priority: number;
   projectId: number;
+  categoryId?: number | null;
   assignedUserId?: number | null;
   assignedUserName?: string;
   completedDate?: string;

@@ -15,6 +15,7 @@ namespace TaskProxyApi.Dtos
             Order = task.Order;
             Priority = task.Priority;
             ProjectId = task.ProjectId;
+            CategoryId = task.CategoryId;
             AssignedUserId = task.AssignedUserId;
             CompletedDate = task.CompletedDate;
             Comments = task.Comments?
@@ -30,6 +31,7 @@ namespace TaskProxyApi.Dtos
         public int Priority { get; set; }
         public int? AssignedUserId { get; set; }
         public int ProjectId { get; set; }
+        public int? CategoryId { get; set; }
         public string CompletedDate { get; set; } = string.Empty;
         public CommentDto[] Comments { get; set; } = Array.Empty<CommentDto>();
     }

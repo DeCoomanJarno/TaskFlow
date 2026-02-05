@@ -1,42 +1,85 @@
 <div class="project-list">
   <!-- Header with Add Button -->
   <div class="project-header">
-            <h2>Custom Screens</h2>
+    <h2 class="header-title">Categories</h2>
+    <mat-form-field appearance="outline" class="project-picker">
+      <mat-label>Project</mat-label>
+      <input
+        matInput
+        [matAutocomplete]="projectAuto"
+        [(ngModel)]="projectSearchText"
+        placeholder="Search or select project">
+      @if (projectSearchText) {
+        <button matSuffix mat-icon-button aria-label="Clear project selection" (click)="clearProjectSelection()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-autocomplete #projectAuto="matAutocomplete">
+        <mat-option [value]="''" (click)="clearProjectSelection()">All projects</mat-option>
+        @for (project of filteredProjects; track project.id) {
+          <mat-option [value]="project.name" (click)="selectProject(project)">
+            {{ project.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
     <button 
       mat-mini-fab 
       color="primary" 
       class="add-project-btn"
-      (click)="openCreateDialog()"
-      matTooltip="Create new project">
+      [matMenuTriggerFor]="createMenu"
+      matTooltip="Create">
       <mat-icon>add</mat-icon>
     </button>
+    <mat-menu #createMenu="matMenu">
+      <button mat-menu-item (click)="openCreateProjectDialog()">
+        <mat-icon>folder</mat-icon>
+        <span>Create project</span>
+      </button>
+      <button mat-menu-item (click)="openCreateCategoryDialog()">
+        <mat-icon>category</mat-icon>
+        <span>Create category</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <div class="project-filters">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filter categories</mat-label>
+      <input matInput [(ngModel)]="categoryFilterText" placeholder="Search name or description">
+      @if (categoryFilterText) {
+        <button matSuffix mat-icon-button aria-label="Clear filter" (click)="categoryFilterText = ''">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
   </div>
 
   <!-- Project Items -->
   <div class="project-items">
-    @for (project of projects; track project.id) {
+    @for (category of filteredCategories; track category.id) {
       <div
         class="project-item"
-        [class.selected]="isSelected(project)"
-        [class.inactive]="!project.isActive"
-        (click)="selectProject(project)"
+        [class.selected]="isSelected(category)"
+        [class.inactive]="!category.isActive"
+        (click)="selectCategory(category)"
         matRipple>
 
-        <div class="project-icon" [class.inactive-icon]="!project.isActive">
-          <mat-icon>{{ project.isActive ? 'folder' : 'folder_off' }}</mat-icon>
+        <div class="project-icon" [class.inactive-icon]="!category.isActive">
+          <mat-icon>{{ category.isActive ? 'category' : 'category' }}</mat-icon>
         </div>
 
         <div class="project-info">
           <div class="project-name">
-            {{ project.name }}
+            {{ category.name }}
           </div>
 
-          <div class="project-meta" [class.inactive]="!project.isActive">
-            <span class="status-badge" [class.active]="project.isActive">
-              {{ project.isActive ? 'Active' : 'Inactive' }}
+          <div class="project-meta" [class.inactive]="!category.isActive">
+            <span class="status-badge" [class.active]="category.isActive">
+              {{ category.isActive ? 'Active' : 'Inactive' }}
             </span>
-            @if (project.id) {
-              <span class="identifier">{{ project.id }}</span>
+            @if (category.id) {
+              <span class="identifier">{{ category.id }}</span>
             }
           </div>
         </div>
@@ -51,19 +94,19 @@
           </button>
 
           <mat-menu #projectMenu="matMenu">
-            <button mat-menu-item (click)="openEditDialog(project, $event)">
+            <button mat-menu-item (click)="openEditCategoryDialog(category, $event)">
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
             
-            <button mat-menu-item (click)="toggleActive(project, $event)">
-              <mat-icon>{{ project.isActive ? 'block' : 'check_circle' }}</mat-icon>
-              <span>{{ project.isActive ? 'Deactivate' : 'Activate' }}</span>
+            <button mat-menu-item (click)="toggleActive(category, $event)">
+              <mat-icon>{{ category.isActive ? 'block' : 'check_circle' }}</mat-icon>
+              <span>{{ category.isActive ? 'Deactivate' : 'Activate' }}</span>
             </button>
             
             <mat-divider></mat-divider>
             
-            <button mat-menu-item (click)="deleteProject(project, $event)" class="delete-action">
+            <button mat-menu-item (click)="deleteCategory(category, $event)" class="delete-action">
               <mat-icon>delete</mat-icon>
               <span>Delete</span>
             </button>
@@ -74,20 +117,20 @@
       </div>
     }
 
-    @if (projects.length === 0) {
+    @if (filteredCategories.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <mat-icon>folder_off</mat-icon>
         </div>
-        <h3>No projects yet</h3>
-        <p>Get started by creating your first project</p>
+        <h3>No categories yet</h3>
+        <p>Get started by creating your first category</p>
         <button 
           mat-raised-button 
           color="primary" 
-          (click)="openCreateDialog()"
+          (click)="openCreateCategoryDialog()"
           class="empty-action-btn">
           <mat-icon>add</mat-icon>
-          <span>Create Project</span>
+          <span>Create Category</span>
         </button>
       </div>
     }

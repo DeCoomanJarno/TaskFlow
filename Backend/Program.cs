@@ -27,6 +27,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // 🔹 Services
 builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CommentService>();

@@ -2,17 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { Category } from '../../../core/models/category.model';
 import { Project } from '../../../core/models/project.model';
 
 @Component({
-  selector: 'app-project-dialog',
+  selector: 'app-category-dialog',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -21,44 +20,44 @@ import { Project } from '../../../core/models/project.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatSlideToggleModule
   ],
-  templateUrl: './project-dialog.component.html',
-  styleUrl: './project-dialog.component.less'
+  templateUrl: './category-dialog.component.html',
+  styleUrl: './category-dialog.component.less'
 })
-export class ProjectDialogComponent {
-  projectForm: FormGroup;
+export class CategoryDialogComponent {
+  categoryForm: FormGroup;
   isEditMode: boolean;
+  projects: Project[];
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<ProjectDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { project?: Project }
+    private dialogRef: MatDialogRef<CategoryDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { category?: Category; projects: Project[]; defaultProjectId?: number | null }
   ) {
-    this.isEditMode = !!data?.project?.id;
-    this.projectForm = this.createForm(data?.project);
+    this.isEditMode = !!data?.category?.id;
+    this.projects = data?.projects ?? [];
+    this.categoryForm = this.createForm(data?.category);
   }
 
-  createForm(project?: Project): FormGroup {
+  createForm(category?: Category): FormGroup {
     return this.fb.group({
-      name: [project?.name || '', Validators.required],
-      description: [project?.description || ''],
-      endDate: [project?.endDate || ''],
-      isActive: [project?.isActive || true]
+      name: [category?.name || '', Validators.required],
+      description: [category?.description || ''],
+      projectId: [category?.projectId ?? this.data?.defaultProjectId ?? null, Validators.required],
+      isActive: [category?.isActive ?? true]
     });
   }
 
   onSave(): void {
-    if (this.projectForm.valid) {
-      const formValue = this.projectForm.value;
-      const project: Project = {
+    if (this.categoryForm.valid) {
+      const formValue = this.categoryForm.value;
+      const category: Category = {
         ...formValue,
         isActive: formValue.isActive ?? true,
-        id: this.data?.project?.id
+        id: this.data?.category?.id
       };
-      this.dialogRef.close(project);
+      this.dialogRef.close(category);
     }
   }
 
