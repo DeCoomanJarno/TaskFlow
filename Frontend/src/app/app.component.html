@@ -5,18 +5,18 @@
         <mat-icon class="brand-icon">dashboard</mat-icon>
         <span class="brand-name">TaskFlow</span>
       </div>
-      
+
       <div class="nav-tabs">
-        <button 
-          mat-button 
+        <button
+          mat-button
           class="nav-tab"
           [class.active]="currentView === 'tasks'"
           (click)="switchView('tasks')">
           <mat-icon>task</mat-icon>
           <span>Tasks</span>
         </button>
-        <button 
-          mat-button 
+        <button
+          mat-button
           class="nav-tab"
           [class.active]="currentView === 'users'"
           (click)="switchView('users')">
@@ -24,8 +24,17 @@
           <span>Users</span>
         </button>
       </div>
-      
+
+      <div class="toolbar-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Search tasks, users, or projects" />
+      </div>
+
       <div class="toolbar-actions">
+        <button mat-flat-button class="toolbar-primary">
+          <mat-icon>add</mat-icon>
+          <span>New task</span>
+        </button>
         @if (currentUser$ | async; as user) {
           <button mat-stroked-button class="toolbar-login" (click)="logout()">
             <mat-icon>logout</mat-icon>
@@ -37,7 +46,7 @@
             <span>Log in</span>
           </button>
         }
-          <!--
+        <!--
           <button mat-icon-button class="toolbar-icon">
             <mat-icon>notifications</mat-icon>
           </button>
@@ -45,7 +54,7 @@
             <mat-icon>settings</mat-icon>
           </button>
           -->
-        </div>
+      </div>
     </div>
   </mat-toolbar>
 
@@ -53,19 +62,108 @@
     @if (currentView === 'tasks') {
       <mat-sidenav-container class="sidenav-container">
         <mat-sidenav mode="side" opened class="project-sidebar">
-          <app-project-list
-            (categorySelected)="taskBoard.loadTasks($event)">
-          </app-project-list>
+          <app-project-list (categorySelected)="taskBoard.loadTasks($event)"></app-project-list>
         </mat-sidenav>
 
         <mat-sidenav-content class="main-content">
+          <section class="overview-header">
+            <div class="overview-copy">
+              <p class="eyebrow">Today at a glance</p>
+              <h1>Move work forward with clarity.</h1>
+              <p>
+                Bring every task, teammate, and milestone into one timeline. Track momentum,
+                remove blockers, and keep goals visible.
+              </p>
+              <div class="overview-actions">
+                <button mat-flat-button color="primary">Plan sprint</button>
+                <button mat-stroked-button>View timeline</button>
+              </div>
+            </div>
+            <div class="overview-cards">
+              <div class="stat-card">
+                <div>
+                  <p class="stat-label">Active tasks</p>
+                  <h2>128</h2>
+                </div>
+                <span class="stat-trend positive">+12% this week</span>
+              </div>
+              <div class="stat-card">
+                <div>
+                  <p class="stat-label">On-track projects</p>
+                  <h2>14</h2>
+                </div>
+                <span class="stat-trend">2 need attention</span>
+              </div>
+              <div class="stat-card">
+                <div>
+                  <p class="stat-label">Team focus</p>
+                  <h2>92%</h2>
+                </div>
+                <span class="stat-trend positive">+6% focus time</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="insights-grid">
+            <div class="insight-card">
+              <div class="insight-icon">
+                <mat-icon>bolt</mat-icon>
+              </div>
+              <div>
+                <h3>Priority engine</h3>
+                <p>Auto-surface what needs attention based on deadlines and dependencies.</p>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">
+                <mat-icon>auto_graph</mat-icon>
+              </div>
+              <div>
+                <h3>Momentum tracking</h3>
+                <p>Visualize progress across teams and spot bottlenecks before they happen.</p>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">
+                <mat-icon>group</mat-icon>
+              </div>
+              <div>
+                <h3>Smart collaboration</h3>
+                <p>Keep stakeholders aligned with shared timelines and workload signals.</p>
+              </div>
+            </div>
+          </section>
+
           <app-task-board #taskBoard></app-task-board>
         </mat-sidenav-content>
       </mat-sidenav-container>
     }
-    
+
     @if (currentView === 'users') {
       <div class="users-view">
+        <section class="overview-header users-hero">
+          <div class="overview-copy">
+            <p class="eyebrow">People & permissions</p>
+            <h1>Build high-performing teams.</h1>
+            <p>Understand capacity, expertise, and ownership so every project stays balanced.</p>
+          </div>
+          <div class="overview-cards">
+            <div class="stat-card">
+              <div>
+                <p class="stat-label">Active members</p>
+                <h2>48</h2>
+              </div>
+              <span class="stat-trend positive">+5 new this month</span>
+            </div>
+            <div class="stat-card">
+              <div>
+                <p class="stat-label">Open roles</p>
+                <h2>6</h2>
+              </div>
+              <span class="stat-trend">Design + Growth</span>
+            </div>
+          </div>
+        </section>
         <app-user-management></app-user-management>
       </div>
     }
