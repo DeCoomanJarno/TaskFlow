@@ -3,14 +3,14 @@
   <div class="project-header">
     <h2 class="header-title">Categories</h2>
     <mat-form-field appearance="outline" class="project-picker">
-      <mat-label>Project</mat-label>
+      <mat-label>Search projects or categories</mat-label>
       <input
         matInput
         [matAutocomplete]="projectAuto"
-        [(ngModel)]="projectSearchText"
-        placeholder="Search or select project">
-      @if (projectSearchText) {
-        <button matSuffix mat-icon-button aria-label="Clear project selection" (click)="clearProjectSelection()">
+        [(ngModel)]="searchText"
+        placeholder="Type to filter and select projects">
+      @if (searchText) {
+        <button matSuffix mat-icon-button aria-label="Clear search" (click)="searchText = ''">
           <mat-icon>close</mat-icon>
         </button>
       }
@@ -43,34 +43,12 @@
     </mat-menu>
   </div>
 
-  <div class="project-filters">
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Filter categories</mat-label>
-      <input matInput [(ngModel)]="categoryFilterText" placeholder="Search name or description">
-      @if (categoryFilterText) {
-        <button matSuffix mat-icon-button aria-label="Clear filter" (click)="categoryFilterText = ''">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-  </div>
-
-  <div class="project-summary">
-    <div class="summary-card">
-      <span class="summary-label">Viewing</span>
-      <h3>{{ selectedProjectId ? projectSearchText : 'All projects' }}</h3>
-      <p>Pick a category to focus the task board.</p>
-    </div>
-    <div class="summary-card">
-      <span class="summary-label">Projects</span>
-      <h3>{{ projects.length }}</h3>
-      <p>Active workspace groups.</p>
-    </div>
-    <div class="summary-card">
-      <span class="summary-label">Categories</span>
-      <h3>{{ filteredCategories.length }}</h3>
-      <p>Matches your current filters.</p>
-    </div>
+  <div class="project-context">
+    <span class="context-pill">Projects: {{ projects.length }}</span>
+    <span class="context-pill">Categories: {{ filteredCategories.length }}</span>
+    @if (selectedProjectName) {
+      <span class="context-pill active">Viewing: {{ selectedProjectName }}</span>
+    }
   </div>
 
   <!-- Project Items -->

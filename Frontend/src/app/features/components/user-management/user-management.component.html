@@ -15,22 +15,9 @@
     </button>
   </div>
 
-  <div class="user-insights">
-    <div class="insight-card">
-      <span class="insight-label">Active members</span>
-      <h2>{{ users.length }}</h2>
-      <p>Collaborators currently in your workspace.</p>
-    </div>
-    <div class="insight-card">
-      <span class="insight-label">Ownership</span>
-      <h2>Balanced</h2>
-      <p>Assign owners to keep tasks moving smoothly.</p>
-    </div>
-    <div class="insight-card">
-      <span class="insight-label">Next step</span>
-      <h2>Invite</h2>
-      <p>Add teammates to distribute workload faster.</p>
-    </div>
+  <div class="user-summary">
+    <mat-icon>groups</mat-icon>
+    <p>{{ users.length }} active members ready to collaborate.</p>
   </div>
 
   <div class="users-grid">

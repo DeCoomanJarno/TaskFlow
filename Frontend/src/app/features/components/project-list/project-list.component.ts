@@ -43,8 +43,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   selectedCategory?: Category;
   selectedProjectId: number | null = null;
-  projectSearchText = '';
-  categoryFilterText = '';
+  searchText = '';
   private refreshSubscription?: Subscription;
   @Output() categorySelected = new EventEmitter<Category | undefined>();
  
@@ -78,7 +77,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   get filteredProjects(): Project[] {
-    const search = this.projectSearchText.trim().toLowerCase();
+    const search = this.searchText.trim().toLowerCase();
     const filtered = search
       ? this.projects.filter(project => project.name.toLowerCase().includes(search))
       : this.projects;
@@ -86,7 +85,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   get filteredCategories(): Category[] {
-    const search = this.categoryFilterText.trim().toLowerCase();
+    const search = this.searchText.trim().toLowerCase();
     let categories = [...this.categories];
 
     if (search) {
@@ -100,19 +99,19 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return categories.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  onProjectChange(): void {
-    this.loadCategories();
+  get selectedProjectName(): string | null {
+    if (this.selectedProjectId == null) return null;
+    return this.projects.find(project => project.id === this.selectedProjectId)?.name ?? null;
   }
 
   selectProject(project: Project): void {
     this.selectedProjectId = project.id ?? null;
-    this.projectSearchText = project.name;
+    this.searchText = '';
     this.loadCategories();
   }
 
   clearProjectSelection(): void {
     this.selectedProjectId = null;
-    this.projectSearchText = '';
     this.loadCategories();
   }
 

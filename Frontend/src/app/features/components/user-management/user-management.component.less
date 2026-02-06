@@ -13,39 +13,25 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.user-insights {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+.user-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
   margin-bottom: 2rem;
-}
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: var(--text-secondary);
 
-.insight-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow: var(--shadow-sm);
-
-  h2 {
-    margin: 0.5rem 0 0.5rem;
-    font-size: 1.6rem;
-    font-weight: 800;
+  mat-icon {
+    color: var(--accent-blue);
   }
 
   p {
     margin: 0;
-    color: var(--text-secondary);
     font-size: 0.9rem;
   }
-}
-
-.insight-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: var(--accent-indigo);
 }
 
 .header-left {
