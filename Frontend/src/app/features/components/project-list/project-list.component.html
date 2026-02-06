@@ -55,6 +55,24 @@
     </mat-form-field>
   </div>
 
+  <div class="project-summary">
+    <div class="summary-card">
+      <span class="summary-label">Viewing</span>
+      <h3>{{ selectedProjectId ? projectSearchText : 'All projects' }}</h3>
+      <p>Pick a category to focus the task board.</p>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Projects</span>
+      <h3>{{ projects.length }}</h3>
+      <p>Active workspace groups.</p>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Categories</span>
+      <h3>{{ filteredCategories.length }}</h3>
+      <p>Matches your current filters.</p>
+    </div>
+  </div>
+
   <!-- Project Items -->
   <div class="project-items">
     @for (category of filteredCategories; track category.id) {

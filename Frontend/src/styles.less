@@ -14,6 +14,7 @@ mat-sidenav-container {
   --accent-blue: #2563eb;
   --accent-indigo: #4f46e5;
   --accent-purple: #7c3aed;
+  --accent-sky: #0ea5e9;
   --success: #059669;
   --warning: #d97706;
   --danger: #dc2626;
@@ -23,6 +24,7 @@ mat-sidenav-container {
   --border-color: #cbd5e1;
   --card-bg: #ffffff;
   --hover-bg: #f1f5f9;
+  --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -40,4 +42,14 @@ body {
   background: var(--primary-dark);
   color: var(--text-primary);
   overflow-x: hidden;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 8px;
 }
