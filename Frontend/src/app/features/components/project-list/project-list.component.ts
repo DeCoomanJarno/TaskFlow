@@ -1,8 +1,9 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { Project } from '../../../core/models/project.model';
+import { Category } from '../../../core/models/category.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,6 +11,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProjectDialogComponent } from '../project-dialog/project-dialog.component';
+import { CategoryDialogComponent } from '../category-dialog/category-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FormsModule } from '@angular/forms';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-project-list',
@@ -20,16 +28,25 @@ import { ProjectDialogComponent } from '../project-dialog/project-dialog.compone
     MatButtonModule,
     MatRippleModule,
     MatTooltipModule,
-    MatMenuModule
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    FormsModule
   ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.less'
 })
-export class ProjectListComponent implements OnInit {
-
+export class ProjectListComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
-  selectedProject?: Project;
-  @Output() projectSelected = new EventEmitter<number>();
+  categories: Category[] = [];
+  selectedCategory?: Category;
+  selectedProjectId: number | null = null;
+  projectSearchText = '';
+  categoryFilterText = '';
+  private refreshSubscription?: Subscription;
+  @Output() categorySelected = new EventEmitter<Category | undefined>();
  
   constructor(
     private api: ApiService,
@@ -38,25 +55,88 @@ export class ProjectListComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.refreshSubscription = interval(15000).subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
   }
 
   load(): void {
     this.api.getProjects().subscribe(projects => {
       this.projects = projects;
+      this.loadCategories();
     });
   }
 
+  loadCategories(): void {
+    const projectId = this.selectedProjectId ?? undefined;
+    this.api.getCategories(projectId).subscribe(categories => {
+      this.categories = categories;
+      this.ensureSelectionVisible();
+    });
+  }
+
+  get filteredProjects(): Project[] {
+    const search = this.projectSearchText.trim().toLowerCase();
+    const filtered = search
+      ? this.projects.filter(project => project.name.toLowerCase().includes(search))
+      : this.projects;
+    return filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get filteredCategories(): Category[] {
+    const search = this.categoryFilterText.trim().toLowerCase();
+    let categories = [...this.categories];
+
+    if (search) {
+      categories = categories.filter(category => {
+        const name = category.name?.toLowerCase() ?? '';
+        const description = category.description?.toLowerCase() ?? '';
+        return name.includes(search) || description.includes(search);
+      });
+    }
+
+    return categories.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  onProjectChange(): void {
+    this.loadCategories();
+  }
+
   selectProject(project: Project): void {
-    if (!project.isActive) return;
-    this.selectedProject = project;
-    this.projectSelected.emit(project.id);
+    this.selectedProjectId = project.id ?? null;
+    this.projectSearchText = project.name;
+    this.loadCategories();
   }
 
-  isSelected(project: Project): boolean {
-    return this.selectedProject?.id === project.id;
+  clearProjectSelection(): void {
+    this.selectedProjectId = null;
+    this.projectSearchText = '';
+    this.loadCategories();
   }
 
-  openCreateDialog(): void {
+  ensureSelectionVisible(): void {
+    if (!this.selectedCategory) return;
+
+    const isVisible = this.filteredCategories.some(category => category.id === this.selectedCategory?.id);
+    if (!isVisible) {
+      this.selectedCategory = undefined;
+      this.categorySelected.emit(undefined);
+    }
+  }
+
+  selectCategory(category: Category): void {
+    if (!category.isActive) return;
+    this.selectedCategory = category;
+    this.categorySelected.emit(category);
+  }
+
+  isSelected(category: Category): boolean {
+    return this.selectedCategory?.id === category.id;
+  }
+
+  openCreateProjectDialog(): void {
     const dialogRef = this.dialog.open(ProjectDialogComponent, {
       width: '600px',
       data: {}
@@ -69,17 +149,36 @@ export class ProjectListComponent implements OnInit {
     });
   }
 
-  openEditDialog(project: Project, event: Event): void {
-    event.stopPropagation(); // Prevent selecting the project
-
-    const dialogRef = this.dialog.open(ProjectDialogComponent, {
+  openCreateCategoryDialog(): void {
+    const dialogRef = this.dialog.open(CategoryDialogComponent, {
       width: '600px',
-      data: { project }
+      data: {
+        projects: this.projects,
+        defaultProjectId: this.selectedProjectId
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.updateProject(result);
+        this.createCategory(result);
+      }
+    });
+  }
+
+  openEditCategoryDialog(category: Category, event: Event): void {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(CategoryDialogComponent, {
+      width: '600px',
+      data: {
+        category,
+        projects: this.projects
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateCategory(result);
       }
     });
   }
@@ -97,71 +196,80 @@ export class ProjectListComponent implements OnInit {
     });
   }
 
-  updateProject(project: Project): void {
-    if (!project.id) return;
-
-    this.api.updateProject(project.id, project).subscribe({
-      next: () => {
-        console.log('Project updated');
-        this.load(); // Reload the list
+  createCategory(category: Category): void {
+    this.api.createCategory(category).subscribe({
+      next: (response) => {
+        console.log('Category created:', response);
+        this.loadCategories();
       },
       error: (error) => {
-        console.error('Error updating project:', error);
-        alert('Failed to update project. Please try again.');
+        console.error('Error creating category:', error);
+        alert('Failed to create category. Please try again.');
       }
     });
   }
 
-  deleteProject(project: Project, event: Event): void {
-    event.stopPropagation(); // Prevent selecting the project
+  updateCategory(category: Category): void {
+    if (!category.id) return;
 
-    if (!project.id) return;
+    this.api.updateCategory(category.id, category).subscribe({
+      next: () => {
+        console.log('Category updated');
+        this.loadCategories();
+      },
+      error: (error) => {
+        console.error('Error updating category:', error);
+        alert('Failed to update category. Please try again.');
+      }
+    });
+  }
 
-    const confirmed = confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`);
-    
+  deleteCategory(category: Category, event: Event): void {
+    event.stopPropagation();
+
+    if (!category.id) return;
+
+    const confirmed = confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`);
+
     if (confirmed) {
-      this.api.deleteProject(project.id).subscribe({
+      this.api.deleteCategory(category.id).subscribe({
         next: () => {
-          console.log('Project deleted');
-          
-          // If the deleted project was selected, clear selection
-          if (this.selectedProject?.id === project.id) {
-            this.selectedProject = undefined;
-            this.projectSelected.emit(undefined as any);
+          console.log('Category deleted');
+
+          if (this.selectedCategory?.id === category.id) {
+            this.selectedCategory = undefined;
+            this.categorySelected.emit(undefined);
           }
-          
-          this.load(); // Reload the list
+
+          this.loadCategories();
         },
         error: (error) => {
-          console.error('Error deleting project:', error);
-          alert('Failed to delete project. Please try again.');
+          console.error('Error deleting category:', error);
+          alert('Failed to delete category. Please try again.');
         }
       });
     }
   }
 
-  toggleActive(project: Project, event: Event): void {
-    event.stopPropagation(); // Prevent selecting the project
+  toggleActive(category: Category, event: Event): void {
+    event.stopPropagation();
 
-    if (!project.id) return;
+    if (!category.id) return;
 
-    const call = project.isActive
-      ? this.api.disableProject(project.id)
-      : this.api.enableProject(project.id);
+    const updatedCategory = { ...category, isActive: !category.isActive };
 
-    call.subscribe({
+    this.api.updateCategory(category.id, updatedCategory).subscribe({
       next: () => {
-        project.isActive = !project.isActive;
-        
-        // If disabling the selected project, clear selection
-        if (!project.isActive && this.selectedProject?.id === project.id) {
-          this.selectedProject = undefined;
-          this.projectSelected.emit(undefined as any);
+        category.isActive = !category.isActive;
+
+        if (!category.isActive && this.selectedCategory?.id === category.id) {
+          this.selectedCategory = undefined;
+          this.categorySelected.emit(undefined);
         }
       },
       error: (error) => {
-        console.error('Error toggling project status:', error);
-        alert('Failed to update project status. Please try again.');
+        console.error('Error toggling category status:', error);
+        alert('Failed to update category status. Please try again.');
       }
     });
   }

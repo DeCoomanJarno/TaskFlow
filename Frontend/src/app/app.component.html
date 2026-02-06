@@ -54,7 +54,7 @@
       <mat-sidenav-container class="sidenav-container">
         <mat-sidenav mode="side" opened class="project-sidebar">
           <app-project-list
-            (projectSelected)="taskBoard.loadTasks($event)">
+            (categorySelected)="taskBoard.loadTasks($event)">
           </app-project-list>
         </mat-sidenav>
 

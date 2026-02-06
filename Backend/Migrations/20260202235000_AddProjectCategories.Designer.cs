@@ -10,9 +10,11 @@ using TaskProxyApi.Data;
 namespace TaskProxyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202235000_AddProjectCategories")]
+    partial class AddProjectCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
@@ -87,34 +89,6 @@ namespace TaskProxyApi.Migrations
                     b.ToTable("LogEntries");
                 });
 
-            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Categories");
-                });
-
             modelBuilder.Entity("TaskProxyApi.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -137,7 +111,12 @@ namespace TaskProxyApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ParentProjectId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentProjectId");
 
                     b.ToTable("Projects");
                 });
@@ -152,9 +131,6 @@ namespace TaskProxyApi.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ColumnId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("CategoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("CompletedDate")
@@ -182,8 +158,6 @@ namespace TaskProxyApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedUserId");
-
-                    b.HasIndex("CategoryId");
 
                     b.HasIndex("ProjectId");
 
@@ -238,15 +212,14 @@ namespace TaskProxyApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
+            modelBuilder.Entity("TaskProxyApi.Models.Project", b =>
                 {
-                    b.HasOne("TaskProxyApi.Models.Project", "Project")
+                    b.HasOne("TaskProxyApi.Models.Project", "ParentProject")
                         .WithMany("Categories")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ParentProjectId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Project");
+                    b.Navigation("ParentProject");
                 });
 
             modelBuilder.Entity("TaskProxyApi.Models.Task", b =>
@@ -262,21 +235,9 @@ namespace TaskProxyApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskProxyApi.Models.Category", "Category")
-                        .WithMany("Tasks")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("AssignedUser");
 
-                    b.Navigation("Category");
-
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("TaskProxyApi.Models.Category", b =>
-                {
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("TaskProxyApi.Models.Project", b =>

@@ -25,14 +25,16 @@ namespace TaskManagerApi.Controllers
 
         private readonly TaskService _tasks;
         private readonly ProjectService _projects;
+        private readonly CategoryService _categories;
         private readonly CommentService _comments;
         private readonly UserService _users;
         private readonly LogService _logs;
 
-        public TasksController(TaskService tasks, ProjectService projects, CommentService comments, UserService users, LogService logs)
+        public TasksController(TaskService tasks, ProjectService projects, CategoryService categories, CommentService comments, UserService users, LogService logs)
         {
             _tasks = tasks;
             _projects = projects;
+            _categories = categories;
             _comments = comments;
             _users = users;
             _logs = logs;
@@ -42,20 +44,23 @@ namespace TaskManagerApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] JsonElement request)
         {
-            if (!request.TryGetProperty("projectId", out var projectIdProp))
-                return BadRequest("Missing projectId");
+            if (!request.TryGetProperty("categoryId", out var categoryIdProp))
+                return BadRequest("Missing categoryId");
 
-            int projectId = projectIdProp.GetInt32();
-            if (projectId <= 0)
-                return BadRequest("Bad Project ID");
+            int categoryId = categoryIdProp.GetInt32();
+            if (categoryId <= 0)
+                return BadRequest("Bad Category ID");
 
-            var project = await _projects.GetByIdAsync(projectId);
-            if (project == null)
-                return NotFound("Project not found");
+            var category = await _categories.GetByIdAsync(categoryId);
+            if (category == null)
+                return NotFound("Category not found");
+
+            var projectId = category.ProjectId;
 
             var task = new TaskProxyApi.Models.Task
             {
                 ProjectId = projectId,
+                CategoryId = categoryId,
                 Title = request.TryGetProperty("title", out var t) && t.ValueKind == JsonValueKind.String
                     ? t.GetString()!
                     : "Untitled",

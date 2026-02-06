@@ -12,6 +12,8 @@ namespace TaskProxyApi.Models
 
         public string Description { get; set; } = string.Empty;
 
+        public ICollection<Category> Categories { get; set; } = new List<Category>();
+
         public ICollection<Task> Tasks { get; set; } = new List<Task>(); 
         public bool IsActive { get; set; } = true;
         public string EndDate { get; set; } = string.Empty;

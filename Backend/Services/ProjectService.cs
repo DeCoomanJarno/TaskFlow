@@ -11,10 +11,15 @@ namespace TaskProxyApi.Services
         public ProjectService(AppDbContext db) => _db = db;
 
         public async Task<List<Project>> GetAllAsync() =>
-            await _db.Projects.Include(p => p.Tasks).ToListAsync();
+            await _db.Projects
+                .Include(p => p.Categories)
+                .ToListAsync();
 
         public async Task<Project> GetByIdAsync(int id) =>
-            await _db.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == id);
+            await _db.Projects
+                .Include(p => p.Categories)
+                .ThenInclude(c => c.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<Project> CreateAsync(Project project)
         {
