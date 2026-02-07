@@ -15,7 +15,6 @@ import { CategoryDialogComponent } from '../category-dialog/category-dialog.comp
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval } from 'rxjs';
 
@@ -32,7 +31,6 @@ import { Subscription, interval } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatAutocompleteModule,
     FormsModule
   ],
   templateUrl: './project-list.component.html',
@@ -76,14 +74,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     });
   }
 
-  get filteredProjects(): Project[] {
-    const search = this.searchText.trim().toLowerCase();
-    const filtered = search
-      ? this.projects.filter(project => project.name.toLowerCase().includes(search))
-      : this.projects;
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
   get filteredCategories(): Category[] {
     const search = this.searchText.trim().toLowerCase();
     let categories = [...this.categories];
@@ -104,27 +94,12 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.projects.find(project => project.id === this.selectedProjectId)?.name ?? null;
   }
 
+  get activeCount(): number {
+    return this.filteredCategories.filter(cat => cat.isActive).length;
+  }
+
   clearSearch(): void {
     this.searchText = '';
-  }
-
-  onProjectOptionSelected(event: MatAutocompleteSelectedEvent): void {
-    const selectedValue = (event.option.value ?? '').toString().trim();
-    if (!selectedValue) {
-      this.clearProjectSelection();
-      return;
-    }
-
-    const matchedProject = this.projects.find(project => project.name === selectedValue);
-    if (matchedProject) {
-      this.selectProject(matchedProject);
-    }
-  }
-
-  selectProject(project: Project): void {
-    this.selectedProjectId = project.id ?? null;
-    this.searchText = '';
-    this.loadCategories();
   }
 
   clearProjectSelection(): void {
@@ -203,7 +178,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.api.createProject(project).subscribe({
       next: (response) => {
         console.log('Project created:', response);
-        this.load(); // Reload the list
+        this.load();
       },
       error: (error) => {
         console.error('Error creating project:', error);

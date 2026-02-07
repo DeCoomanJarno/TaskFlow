@@ -1,137 +1,128 @@
 <div class="project-list">
-  <!-- Header with Add Button -->
-  <div class="project-header">
-    <div class="header-title-group">
-      <h2 class="header-title">Categories</h2>
-      <p class="header-subtitle">Search projects or filter categories in one place.</p>
+  <!-- Compact Sidebar Header -->
+  <div class="sidebar-header">
+    <div class="header-top">
+      <h2>Projects</h2>
+      <span class="count">{{ projects.length }} projects</span>
     </div>
-    <mat-form-field appearance="outline" class="project-picker">
-      <mat-label>Search projects or categories</mat-label>
-      <input
-        matInput
-        [matAutocomplete]="projectAuto"
-        [(ngModel)]="searchText"
-        placeholder="Type to filter or pick a project">
-      @if (searchText) {
-        <button matSuffix mat-icon-button aria-label="Clear search" (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-      <mat-autocomplete #projectAuto="matAutocomplete" (optionSelected)="onProjectOptionSelected($event)">
-        <mat-option [value]="''">All projects</mat-option>
-        @for (project of filteredProjects; track project.id) {
-          <mat-option [value]="project.name">
-            {{ project.name }}
-          </mat-option>
+    <div class="toolbar">
+      <mat-select [(ngModel)]="selectedProjectId" (change)="loadCategories()" class="project-filter">
+        <mat-option [value]="null">All Projects</mat-option>
+        @for (project of projects; track project.id) {
+          <mat-option [value]="project.id">{{ project.name }}</mat-option>
         }
-      </mat-autocomplete>
-    </mat-form-field>
-    <button 
-      mat-mini-fab 
-      color="primary" 
-      class="add-project-btn"
-      [matMenuTriggerFor]="createMenu"
-      matTooltip="Create">
-      <mat-icon>add</mat-icon>
-    </button>
-    <mat-menu #createMenu="matMenu">
+      </mat-select>
+      
+      <button class="add-btn" [matMenuTriggerFor]="createMenu">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <mat-menu #createMenu="matMenu" class="sidebar-menu">
       <button mat-menu-item (click)="openCreateProjectDialog()">
-        <mat-icon>folder</mat-icon>
-        <span>Create project</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V9C21 7.89543 20.1046 7 19 7H13L11 5H5C3.89543 5 3 5.89543 3 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>New Project</span>
       </button>
       <button mat-menu-item (click)="openCreateCategoryDialog()">
-        <mat-icon>category</mat-icon>
-        <span>Create category</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="13" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="13" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="13" y="13" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>New Category</span>
       </button>
     </mat-menu>
   </div>
+      <div class="category-header">
+<div class="header-top">
+      <h2>Categories</h2>
 
-  <div class="project-context">
-    <span class="context-pill">Projects: {{ projects.length }}</span>
-    <span class="context-pill">Categories: {{ filteredCategories.length }}</span>
-    @if (selectedProjectName) {
-      <span class="context-pill active">Viewing: {{ selectedProjectName }}</span>
-    }
-  </div>
+      <span class="count">{{ filteredCategories.length }} {{filteredCategories.length == 1 ? 'category' : 'categories'}}</span>
+    </div>
+    
+    
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input 
+        type="text" 
+        [(ngModel)]="searchText"
+        placeholder="Search"
+        class="search-input">
+      @if (searchText) {
+        <button class="clear-search" (click)="clearSearch()">×</button>
+      }
+    </div>
 
-  <!-- Project Items -->
-  <div class="project-items">
+
+  <div class="categories">
     @for (category of filteredCategories; track category.id) {
-      <div
-        class="project-item"
+      <div 
+        class="category"
         [class.selected]="isSelected(category)"
         [class.inactive]="!category.isActive"
-        (click)="selectCategory(category)"
-        matRipple>
-
-        <div class="project-icon" [class.inactive-icon]="!category.isActive">
-          <mat-icon>{{ category.isActive ? 'category' : 'category' }}</mat-icon>
+        (click)="selectCategory(category)">
+        
+        <div class="category-info">
+          <div class="name">{{ category.name }}</div>
+          @if (!category.isActive || category.id) {
+            <div class="meta">
+              @if (!category.isActive) {
+                <span class="badge">Inactive</span>
+              }
+              @if (category.id) {
+                <span class="id">{{ category.id }}</span>
+              }
+            </div>
+          }
         </div>
 
-        <div class="project-info">
-          <div class="project-name">
-            {{ category.name }}
-          </div>
-
-          <div class="project-meta" [class.inactive]="!category.isActive">
-            <span class="status-badge" [class.active]="category.isActive">
-              {{ category.isActive ? 'Active' : 'Inactive' }}
-            </span>
-            @if (category.id) {
-              <span class="identifier">{{ category.id }}</span>
-            }
-          </div>
-        </div>
-
-        <!-- Actions Menu -->
-        <div class="project-actions" (click)="$event.stopPropagation()">
-          <button 
-            mat-icon-button 
-            [matMenuTriggerFor]="projectMenu"
-            class="action-menu-btn">
-            <mat-icon>more_vert</mat-icon>
+        <div class="actions" (click)="$event.stopPropagation()">
+          <button class="menu-btn" [matMenuTriggerFor]="catMenu">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="3" r="1.2" fill="currentColor"/>
+              <circle cx="8" cy="8" r="1.2" fill="currentColor"/>
+              <circle cx="8" cy="13" r="1.2" fill="currentColor"/>
+            </svg>
           </button>
-
-          <mat-menu #projectMenu="matMenu">
+          <mat-menu #catMenu="matMenu" class="sidebar-menu">
             <button mat-menu-item (click)="openEditCategoryDialog(category, $event)">
-              <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
-            
             <button mat-menu-item (click)="toggleActive(category, $event)">
-              <mat-icon>{{ category.isActive ? 'block' : 'check_circle' }}</mat-icon>
               <span>{{ category.isActive ? 'Deactivate' : 'Activate' }}</span>
             </button>
-            
-            <mat-divider></mat-divider>
-            
-            <button mat-menu-item (click)="deleteCategory(category, $event)" class="delete-action">
-              <mat-icon>delete</mat-icon>
+            <div class="divider"></div>
+            <button mat-menu-item (click)="deleteCategory(category, $event)" class="danger">
               <span>Delete</span>
             </button>
           </mat-menu>
         </div>
-
-        <mat-icon class="chevron">chevron_right</mat-icon>
       </div>
     }
 
     @if (filteredCategories.length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <mat-icon>folder_off</mat-icon>
-        </div>
-        <h3>No categories yet</h3>
-        <p>Get started by creating your first category</p>
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="openCreateCategoryDialog()"
-          class="empty-action-btn">
-          <mat-icon>add</mat-icon>
-          <span>Create Category</span>
-        </button>
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+          <path d="M8 18L24 8L40 18V38C40 39.1046 39.1046 40 38 40H10C8.89543 40 8 39.1046 8 38V18Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18 40V24H30V40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>{{ searchText || selectedProjectName ? 'No matches' : 'No categories' }}</h3>
+        <p>{{ searchText || selectedProjectName ? 'Try different filters' : 'Create one to start' }}</p>
+        @if (!searchText && !selectedProjectName) {
+          <button class="create-btn" (click)="openCreateCategoryDialog()">
+            Create Category
+          </button>
+        }
       </div>
     }
+  </div>
   </div>
 </div>
