@@ -15,7 +15,7 @@ import { CategoryDialogComponent } from '../category-dialog/category-dialog.comp
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval } from 'rxjs';
 
@@ -104,6 +104,23 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.projects.find(project => project.id === this.selectedProjectId)?.name ?? null;
   }
 
+  clearSearch(): void {
+    this.searchText = '';
+  }
+
+  onProjectOptionSelected(event: MatAutocompleteSelectedEvent): void {
+    const selectedValue = (event.option.value ?? '').toString().trim();
+    if (!selectedValue) {
+      this.clearProjectSelection();
+      return;
+    }
+
+    const matchedProject = this.projects.find(project => project.name === selectedValue);
+    if (matchedProject) {
+      this.selectProject(matchedProject);
+    }
+  }
+
   selectProject(project: Project): void {
     this.selectedProjectId = project.id ?? null;
     this.searchText = '';
@@ -153,7 +170,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       width: '600px',
       data: {
         projects: this.projects,
-        defaultProjectId: this.selectedProjectId
+        defaultProjectId: this.selectedProjectId ?? (this.projects.length === 1 ? this.projects[0].id : null)
       }
     });
 

@@ -3,7 +3,7 @@
   <div class="project-header">
     <div class="header-title-group">
       <h2 class="header-title">Categories</h2>
-      <p class="header-subtitle">Search projects and filter categories in one place.</p>
+      <p class="header-subtitle">Search projects or filter categories in one place.</p>
     </div>
     <mat-form-field appearance="outline" class="project-picker">
       <mat-label>Search projects or categories</mat-label>
@@ -11,16 +11,16 @@
         matInput
         [matAutocomplete]="projectAuto"
         [(ngModel)]="searchText"
-        placeholder="Type to filter and select projects">
+        placeholder="Type to filter or pick a project">
       @if (searchText) {
-        <button matSuffix mat-icon-button aria-label="Clear search" (click)="searchText = ''">
+        <button matSuffix mat-icon-button aria-label="Clear search" (click)="clearSearch()">
           <mat-icon>close</mat-icon>
         </button>
       }
-      <mat-autocomplete #projectAuto="matAutocomplete">
-        <mat-option [value]="''" (click)="clearProjectSelection()">All projects</mat-option>
+      <mat-autocomplete #projectAuto="matAutocomplete" (optionSelected)="onProjectOptionSelected($event)">
+        <mat-option [value]="''">All projects</mat-option>
         @for (project of filteredProjects; track project.id) {
-          <mat-option [value]="project.name" (click)="selectProject(project)">
+          <mat-option [value]="project.name">
             {{ project.name }}
           </mat-option>
         }

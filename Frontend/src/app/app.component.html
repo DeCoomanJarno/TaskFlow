@@ -24,20 +24,22 @@
           <span>Users</span>
         </button>
         <button
-          mat-button
-          class="nav-tab"
+          mat-icon-button
+          class="nav-icon"
           [class.active]="currentView === 'analytics'"
+          title="Analytics"
+          aria-label="Analytics"
           (click)="switchView('analytics')">
           <mat-icon>insights</mat-icon>
-          <span>Analytics</span>
         </button>
         <button
-          mat-button
-          class="nav-tab"
+          mat-icon-button
+          class="nav-icon"
           [class.active]="currentView === 'settings'"
+          title="Settings"
+          aria-label="Settings"
           (click)="switchView('settings')">
           <mat-icon>settings</mat-icon>
-          <span>Settings</span>
         </button>
       </div>
 
