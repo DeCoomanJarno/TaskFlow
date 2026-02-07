@@ -23,9 +23,12 @@
           <mat-icon>people</mat-icon>
           <span>Users</span>
         </button>
+      </div>
+
+      <div class="toolbar-actions">
         <button
           mat-icon-button
-          class="nav-icon"
+          class="toolbar-icon"
           [class.active]="currentView === 'analytics'"
           title="Analytics"
           aria-label="Analytics"
@@ -34,16 +37,13 @@
         </button>
         <button
           mat-icon-button
-          class="nav-icon"
+          class="toolbar-icon"
           [class.active]="currentView === 'settings'"
           title="Settings"
           aria-label="Settings"
           (click)="switchView('settings')">
           <mat-icon>settings</mat-icon>
         </button>
-      </div>
-
-      <div class="toolbar-actions">
         @if (currentUser$ | async; as user) {
           <button mat-stroked-button class="toolbar-login" (click)="logout()">
             <mat-icon>logout</mat-icon>
