@@ -23,6 +23,22 @@
           <mat-icon>people</mat-icon>
           <span>Users</span>
         </button>
+        <button
+          mat-button
+          class="nav-tab"
+          [class.active]="currentView === 'analytics'"
+          (click)="switchView('analytics')">
+          <mat-icon>insights</mat-icon>
+          <span>Analytics</span>
+        </button>
+        <button
+          mat-button
+          class="nav-tab"
+          [class.active]="currentView === 'settings'"
+          (click)="switchView('settings')">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </button>
       </div>
 
       <div class="toolbar-actions">
@@ -65,6 +81,18 @@
     @if (currentView === 'users') {
       <div class="users-view">
         <app-user-management></app-user-management>
+      </div>
+    }
+
+    @if (currentView === 'analytics') {
+      <div class="users-view">
+        <app-analytics-page></app-analytics-page>
+      </div>
+    }
+
+    @if (currentView === 'settings') {
+      <div class="users-view">
+        <app-settings-page></app-settings-page>
       </div>
     }
   </div>

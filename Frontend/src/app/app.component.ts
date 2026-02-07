@@ -12,6 +12,8 @@ import { AuthService } from './core/services/auth.service';
 import { LoginDialogComponent } from './features/components/login-dialog/login-dialog.component';
 import { Observable } from 'rxjs';
 import { User } from './core/models/user.model';
+import { AnalyticsPageComponent } from './features/components/analytics-page/analytics-page.component';
+import { SettingsPageComponent } from './features/components/settings-page/settings-page.component';
 
 @Component({
   selector: 'app-root',
@@ -24,14 +26,16 @@ import { User } from './core/models/user.model';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    AnalyticsPageComponent,
+    SettingsPageComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.less'
 })
 export class AppComponent {
   title = 'task-manager-frontend';
-  currentView: 'tasks' | 'users' = 'tasks';
+  currentView: 'tasks' | 'users' | 'analytics' | 'settings' = 'tasks';
   currentUser$: Observable<User | null>;
 
   constructor(
@@ -41,7 +45,7 @@ export class AppComponent {
     this.currentUser$ = this.auth.currentUser$;
   }
   
-  switchView(view: 'tasks' | 'users') {
+  switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
     this.currentView = view;
   }
 
