@@ -23,7 +23,7 @@ import { Project } from '../../../core/models/project.model';
     MatSlideToggleModule
   ],
   templateUrl: './category-dialog.component.html',
-  styleUrl: './category-dialog.component.less'
+  styleUrl: './category-dialog.component.scss'
 })
 export class CategoryDialogComponent {
   categoryForm: FormGroup;

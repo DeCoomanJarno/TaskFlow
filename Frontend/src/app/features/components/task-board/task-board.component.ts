@@ -50,7 +50,7 @@ export interface TaskColumn {
     FormsModule
   ],
   templateUrl: './task-board.component.html',
-  styleUrl: './task-board.component.less'
+  styleUrl: './task-board.component.scss'
 })
 export class TaskBoardComponent implements OnInit, OnDestroy {
   selectedProjectId?: number;

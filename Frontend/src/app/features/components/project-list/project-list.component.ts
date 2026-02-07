@@ -34,7 +34,7 @@ import { Subscription, interval } from 'rxjs';
     FormsModule
   ],
   templateUrl: './project-list.component.html',
-  styleUrl: './project-list.component.less'
+  styleUrl: './project-list.component.scss'
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
