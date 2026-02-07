@@ -15,6 +15,11 @@
     </button>
   </div>
 
+  <div class="user-summary">
+    <mat-icon>groups</mat-icon>
+    <p>{{ users.length }} active members ready to collaborate.</p>
+  </div>
+
   <div class="users-grid">
     @for (user of users; track user.id; let i = $index) {
       <mat-card 

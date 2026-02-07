@@ -5,18 +5,18 @@
         <mat-icon class="brand-icon">dashboard</mat-icon>
         <span class="brand-name">TaskFlow</span>
       </div>
-      
+
       <div class="nav-tabs">
-        <button 
-          mat-button 
+        <button
+          mat-button
           class="nav-tab"
           [class.active]="currentView === 'tasks'"
           (click)="switchView('tasks')">
           <mat-icon>task</mat-icon>
           <span>Tasks</span>
         </button>
-        <button 
-          mat-button 
+        <button
+          mat-button
           class="nav-tab"
           [class.active]="currentView === 'users'"
           (click)="switchView('users')">
@@ -24,8 +24,26 @@
           <span>Users</span>
         </button>
       </div>
-      
+
       <div class="toolbar-actions">
+        <button
+          mat-icon-button
+          class="toolbar-icon"
+          [class.active]="currentView === 'analytics'"
+          title="Analytics"
+          aria-label="Analytics"
+          (click)="switchView('analytics')">
+          <mat-icon>insights</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          class="toolbar-icon"
+          [class.active]="currentView === 'settings'"
+          title="Settings"
+          aria-label="Settings"
+          (click)="switchView('settings')">
+          <mat-icon>settings</mat-icon>
+        </button>
         @if (currentUser$ | async; as user) {
           <button mat-stroked-button class="toolbar-login" (click)="logout()">
             <mat-icon>logout</mat-icon>
@@ -37,7 +55,7 @@
             <span>Log in</span>
           </button>
         }
-          <!--
+        <!--
           <button mat-icon-button class="toolbar-icon">
             <mat-icon>notifications</mat-icon>
           </button>
@@ -45,7 +63,7 @@
             <mat-icon>settings</mat-icon>
           </button>
           -->
-        </div>
+      </div>
     </div>
   </mat-toolbar>
 
@@ -53,9 +71,7 @@
     @if (currentView === 'tasks') {
       <mat-sidenav-container class="sidenav-container">
         <mat-sidenav mode="side" opened class="project-sidebar">
-          <app-project-list
-            (categorySelected)="taskBoard.loadTasks($event)">
-          </app-project-list>
+          <app-project-list (categorySelected)="taskBoard.loadTasks($event)"></app-project-list>
         </mat-sidenav>
 
         <mat-sidenav-content class="main-content">
@@ -63,10 +79,22 @@
         </mat-sidenav-content>
       </mat-sidenav-container>
     }
-    
+
     @if (currentView === 'users') {
       <div class="users-view">
         <app-user-management></app-user-management>
+      </div>
+    }
+
+    @if (currentView === 'analytics') {
+      <div class="users-view">
+        <app-analytics-page></app-analytics-page>
+      </div>
+    }
+
+    @if (currentView === 'settings') {
+      <div class="users-view">
+        <app-settings-page></app-settings-page>
       </div>
     }
   </div>

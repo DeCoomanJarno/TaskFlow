@@ -15,7 +15,6 @@ import { CategoryDialogComponent } from '../category-dialog/category-dialog.comp
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval } from 'rxjs';
 
@@ -32,7 +31,6 @@ import { Subscription, interval } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatAutocompleteModule,
     FormsModule
   ],
   templateUrl: './project-list.component.html',
@@ -43,8 +41,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   selectedCategory?: Category;
   selectedProjectId: number | null = null;
-  projectSearchText = '';
-  categoryFilterText = '';
+  searchText = '';
   private refreshSubscription?: Subscription;
   @Output() categorySelected = new EventEmitter<Category | undefined>();
  
@@ -77,16 +74,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     });
   }
 
-  get filteredProjects(): Project[] {
-    const search = this.projectSearchText.trim().toLowerCase();
-    const filtered = search
-      ? this.projects.filter(project => project.name.toLowerCase().includes(search))
-      : this.projects;
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
   get filteredCategories(): Category[] {
-    const search = this.categoryFilterText.trim().toLowerCase();
+    const search = this.searchText.trim().toLowerCase();
     let categories = [...this.categories];
 
     if (search) {
@@ -100,19 +89,21 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return categories.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  onProjectChange(): void {
-    this.loadCategories();
+  get selectedProjectName(): string | null {
+    if (this.selectedProjectId == null) return null;
+    return this.projects.find(project => project.id === this.selectedProjectId)?.name ?? null;
   }
 
-  selectProject(project: Project): void {
-    this.selectedProjectId = project.id ?? null;
-    this.projectSearchText = project.name;
-    this.loadCategories();
+  get activeCount(): number {
+    return this.filteredCategories.filter(cat => cat.isActive).length;
+  }
+
+  clearSearch(): void {
+    this.searchText = '';
   }
 
   clearProjectSelection(): void {
     this.selectedProjectId = null;
-    this.projectSearchText = '';
     this.loadCategories();
   }
 
@@ -154,7 +145,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       width: '600px',
       data: {
         projects: this.projects,
-        defaultProjectId: this.selectedProjectId
+        defaultProjectId: this.selectedProjectId ?? (this.projects.length === 1 ? this.projects[0].id : null)
       }
     });
 
@@ -187,7 +178,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.api.createProject(project).subscribe({
       next: (response) => {
         console.log('Project created:', response);
-        this.load(); // Reload the list
+        this.load();
       },
       error: (error) => {
         console.error('Error creating project:', error);

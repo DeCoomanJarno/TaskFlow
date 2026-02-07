@@ -19,7 +19,7 @@ namespace TaskProxyApi.Models
         public int ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; }
+        public Project? Project { get; set; } = null;
 
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
     }

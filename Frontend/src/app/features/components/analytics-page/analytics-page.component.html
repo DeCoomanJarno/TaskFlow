@@ -1,0 +1,74 @@
+<div class="analytics-page">
+  <div class="analytics-header">
+    <div>
+      <p class="eyebrow">Analytics</p>
+      <h1>Workspace insights</h1>
+      <p class="subtitle">Real-time signals powered by your TaskFlow data.</p>
+    </div>
+    @if (lastUpdated) {
+      <div class="timestamp">
+        <mat-icon>schedule</mat-icon>
+        <span>Updated {{ lastUpdated | date: 'MMM d, y · h:mm a' }}</span>
+      </div>
+    }
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-icon>sync</mat-icon>
+      <p>Loading analytics…</p>
+    </div>
+  } @else if (hasError) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>Unable to load analytics right now. Please try again.</p>
+    </div>
+  } @else {
+    <div class="analytics-grid">
+      <div class="stat-card">
+        <div>
+          <p class="stat-label">Projects</p>
+          <h2>{{ projectsCount }}</h2>
+        </div>
+        <mat-icon>folder</mat-icon>
+      </div>
+      <div class="stat-card">
+        <div>
+          <p class="stat-label">Categories</p>
+          <h2>{{ categoriesCount }}</h2>
+        </div>
+        <mat-icon>category</mat-icon>
+      </div>
+      <div class="stat-card">
+        <div>
+          <p class="stat-label">Active categories</p>
+          <h2>{{ activeCategoriesCount }}</h2>
+        </div>
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="stat-card">
+        <div>
+          <p class="stat-label">Team members</p>
+          <h2>{{ usersCount }}</h2>
+        </div>
+        <mat-icon>groups</mat-icon>
+      </div>
+    </div>
+
+    <div class="analytics-panels">
+      <div class="panel">
+        <h3>Project coverage</h3>
+        <p>
+          {{ activeCategoriesCount }} of {{ categoriesCount }} categories are active.
+          Keep inactive categories archived to reduce noise.
+        </p>
+      </div>
+      <div class="panel">
+        <h3>Team footprint</h3>
+        <p>
+          {{ usersCount }} members are available for assignment. Add more users to scale delivery.
+        </p>
+      </div>
+    </div>
+  }
+</div>

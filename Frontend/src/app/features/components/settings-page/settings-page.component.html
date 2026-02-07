@@ -1,0 +1,36 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <div>
+      <p class="eyebrow">Settings</p>
+      <h1>Personalize your workspace</h1>
+      <p class="subtitle">Control how TaskFlow looks and feels for you.</p>
+    </div>
+    <div class="actions">
+      <button mat-stroked-button (click)="resetSettings()">Reset</button>
+      <button mat-raised-button color="primary" (click)="saveSettings()">
+        <mat-icon>save</mat-icon>
+        Save settings
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <div class="settings-card">
+      <h3>Notifications</h3>
+      <p>Stay informed about updates to tasks and projects.</p>
+      <mat-slide-toggle [(ngModel)]="settings.notificationsEnabled">Enable notifications</mat-slide-toggle>
+    </div>
+    <div class="settings-card">
+      <h3>Density</h3>
+      <p>Use compact spacing to see more tasks at once.</p>
+      <mat-slide-toggle [(ngModel)]="settings.compactMode">Compact mode</mat-slide-toggle>
+    </div>
+  </div>
+
+  @if (isSaved) {
+    <div class="save-confirmation">
+      <mat-icon>check_circle</mat-icon>
+      <span>Settings saved.</span>
+    </div>
+  }
+</div>
