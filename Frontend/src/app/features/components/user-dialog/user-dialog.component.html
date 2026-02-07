@@ -15,14 +15,6 @@
 
   <form [formGroup]="userForm" (ngSubmit)="save()" class="user-form">
     <mat-dialog-content class="dialog-content">
-      @if (isEditMode) {
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>User ID</mat-label>
-          <input matInput formControlName="id" readonly />
-          <mat-icon matPrefix>badge</mat-icon>
-        </mat-form-field>
-      }
-
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Username</mat-label>
         <input matInput formControlName="name" placeholder="Enter username" required />

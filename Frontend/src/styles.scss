@@ -50,7 +50,6 @@ textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
   border-radius: 8px;
 }
 
