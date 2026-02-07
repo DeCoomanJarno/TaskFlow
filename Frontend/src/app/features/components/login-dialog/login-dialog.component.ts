@@ -20,7 +20,7 @@ import { User } from '../../../core/models/user.model';
     MatIconModule
   ],
   templateUrl: './login-dialog.component.html',
-  styleUrl: './login-dialog.component.less'
+  styleUrl: './login-dialog.component.scss'
 })
 export class LoginDialogComponent {
   users: User[] = [];

@@ -8,7 +8,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-analytics-page',
   imports: [CommonModule, MatIconModule],
   templateUrl: './analytics-page.component.html',
-  styleUrl: './analytics-page.component.less'
+  styleUrl: './analytics-page.component.scss'
 })
 export class AnalyticsPageComponent implements OnInit {
   isLoading = true;

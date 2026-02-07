@@ -31,7 +31,7 @@ import { SettingsPageComponent } from './features/components/settings-page/setti
     SettingsPageComponent
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.less'
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'task-manager-frontend';

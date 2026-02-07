@@ -32,7 +32,7 @@ export interface TaskDialogData {
     ReactiveFormsModule
   ],
   templateUrl: './task-dialog.component.html',
-  styleUrl: './task-dialog.component.less'
+  styleUrl: './task-dialog.component.scss'
 })
 export class TaskDialogComponent implements OnInit {
    users: User[] = [];

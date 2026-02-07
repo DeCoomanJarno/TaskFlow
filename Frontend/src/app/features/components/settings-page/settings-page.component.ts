@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   selector: 'app-settings-page',
   imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatSlideToggleModule],
   templateUrl: './settings-page.component.html',
-  styleUrl: './settings-page.component.less'
+  styleUrl: './settings-page.component.scss'
 })
 export class SettingsPageComponent implements OnInit {
   settings: AppSettings = { ...DEFAULT_SETTINGS };

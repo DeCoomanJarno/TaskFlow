@@ -26,7 +26,7 @@ import { Project } from '../../../core/models/project.model';
     MatSlideToggleModule
   ],
   templateUrl: './project-dialog.component.html',
-  styleUrl: './project-dialog.component.less'
+  styleUrl: './project-dialog.component.scss'
 })
 export class ProjectDialogComponent {
   projectForm: FormGroup;

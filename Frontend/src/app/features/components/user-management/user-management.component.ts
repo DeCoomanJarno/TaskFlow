@@ -23,7 +23,7 @@ import { AuthService } from '../../../core/services/auth.service';
     MatTooltipModule
   ],
   templateUrl: './user-management.component.html',
-  styleUrl: './user-management.component.less'
+  styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
