@@ -187,7 +187,7 @@ For interactive docs, run backend and open Swagger UI at `http://localhost:5000/
 ## 1) Prerequisites
 
 - Node.js 20+ and npm
-- .NET SDK 8+
+- .NET SDK 10+
 
 ## 2) Clone and enter the repo
 
