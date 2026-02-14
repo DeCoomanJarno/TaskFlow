@@ -59,14 +59,44 @@
           <button
             mat-icon-button
             class="toolbar-icon"
+            [matMenuTriggerFor]="notificationsMenu"
             title="Notifications"
-            aria-label="Notifications">
+            aria-label="Notifications"
+            (menuOpened)="markNotificationsRead()"
+            [matBadge]="(unreadCount$ | async) ?? 0"
+            [matBadgeHidden]="((unreadCount$ | async) ?? 0) === 0"
+            matBadgeColor="warn"
+            matBadgeSize="small">
             <mat-icon>notifications</mat-icon>
           </button>
         }
       </div>
     </div>
   </mat-toolbar>
+
+  <mat-menu #notificationsMenu="matMenu">
+    <button mat-menu-item disabled>
+      <strong>Notifications</strong>
+    </button>
+
+    @if (notifications$ | async; as notifications) {
+      @if (notifications.length === 0) {
+        <button mat-menu-item disabled>
+          <span>No notifications yet</span>
+        </button>
+      } @else {
+        @for (notification of notifications; track notification.id) {
+          <button mat-menu-item disabled>
+            <span>{{ notification.message }}</span>
+          </button>
+        }
+        <button mat-menu-item (click)="clearNotifications()">
+          <mat-icon>delete_sweep</mat-icon>
+          <span>Clear all</span>
+        </button>
+      }
+    }
+  </mat-menu>
 
   <div class="app-content">
     @if (currentView === 'tasks') {
@@ -99,4 +129,4 @@
       </div>
     }
   </div>
-  </div>
+</div>

@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { AppSettings, DEFAULT_APP_SETTINGS } from '../../../core/models/app-settings.model';
 import { AppSettingsService } from '../../../core/services/app-settings.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-settings-page',
@@ -32,7 +33,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly appSettings: AppSettingsService) {}
+  constructor(
+    private readonly appSettings: AppSettingsService,
+    private readonly notifications: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.appSettings.settings$
@@ -55,6 +59,11 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   saveSettings(): void {
     this.appSettings.save(this.settings);
+
+    if (this.settings.notificationsEnabled) {
+      this.notifications.notify('Settings were updated successfully.');
+    }
+
     this.isSaved = true;
     this.hasUnsavedChanges = false;
 

@@ -16,6 +16,9 @@ import { AnalyticsPageComponent } from './features/components/analytics-page/ana
 import { SettingsPageComponent } from './features/components/settings-page/settings-page.component';
 import { AppSettingsService } from './core/services/app-settings.service';
 import { AppSettings } from './core/models/app-settings.model';
+import { AppNotification, NotificationService } from './core/services/notification.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +33,9 @@ import { AppSettings } from './core/models/app-settings.model';
     MatButtonModule,
     MatDialogModule,
     AnalyticsPageComponent,
-    SettingsPageComponent
+    SettingsPageComponent,
+    MatMenuModule,
+    MatBadgeModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -40,25 +45,34 @@ export class AppComponent {
   currentView: 'tasks' | 'users' | 'analytics' | 'settings' = 'tasks';
   currentUser$: Observable<User | null>;
   appSettings: AppSettings;
+  notifications$: Observable<AppNotification[]>;
+  unreadCount$: Observable<number>;
 
   constructor(
     private dialog: MatDialog,
     private auth: AuthService,
-    private settingsService: AppSettingsService
+    private settingsService: AppSettingsService,
+    private notificationsService: NotificationService
   ) {
     this.currentUser$ = this.auth.currentUser$;
+    this.notifications$ = this.notificationsService.notifications$;
+    this.unreadCount$ = this.notificationsService.unreadCount$;
     this.appSettings = this.settingsService.settings;
     this.currentView = this.appSettings.defaultView;
 
     this.settingsService.settings$.subscribe(settings => {
       this.appSettings = settings;
 
+      if (!settings.notificationsEnabled) {
+        this.notificationsService.markAllRead();
+      }
+
       if (this.currentView !== 'settings') {
         this.currentView = settings.defaultView;
       }
     });
   }
-  
+
   switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
     this.currentView = view;
   }
@@ -67,6 +81,14 @@ export class AppComponent {
     this.dialog.open(LoginDialogComponent, {
       width: '400px'
     });
+  }
+
+  markNotificationsRead(): void {
+    this.notificationsService.markAllRead();
+  }
+
+  clearNotifications(): void {
+    this.notificationsService.clear();
   }
 
   logout() {
