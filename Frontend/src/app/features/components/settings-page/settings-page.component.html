@@ -2,35 +2,70 @@
   <div class="settings-header">
     <div>
       <p class="eyebrow">Settings</p>
-      <h1>Personalize your workspace</h1>
-      <p class="subtitle">Control how TaskFlow looks and feels for you.</p>
+      <h1>Workspace preferences</h1>
+      <p class="subtitle">Configure how TaskFlow behaves and what your team sees first.</p>
     </div>
     <div class="actions">
-      <button mat-stroked-button (click)="resetSettings()">Reset</button>
-      <button mat-raised-button color="primary" (click)="saveSettings()">
+      <button mat-stroked-button (click)="restoreSavedSettings()" [disabled]="!hasUnsavedChanges">Discard</button>
+      <button mat-stroked-button (click)="resetSettings()">Reset defaults</button>
+      <button mat-raised-button color="primary" (click)="saveSettings()" [disabled]="!hasUnsavedChanges">
         <mat-icon>save</mat-icon>
-        Save settings
+        Save changes
       </button>
     </div>
   </div>
 
   <div class="settings-grid">
-    <div class="settings-card">
+    <section class="settings-card">
+      <h3>General</h3>
+      <p>Choose the default landing view and list density.</p>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Default view</mat-label>
+        <mat-select [(ngModel)]="settings.defaultView" (ngModelChange)="markChanged()">
+          <mat-option value="tasks">Tasks</mat-option>
+          <mat-option value="users">Users</mat-option>
+          <mat-option value="analytics">Analytics</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-slide-toggle [(ngModel)]="settings.compactMode" (ngModelChange)="markChanged()">
+        Compact layout
+      </mat-slide-toggle>
+    </section>
+
+    <section class="settings-card">
       <h3>Notifications</h3>
-      <p>Stay informed about updates to tasks and projects.</p>
-      <mat-slide-toggle [(ngModel)]="settings.notificationsEnabled">Enable notifications</mat-slide-toggle>
-    </div>
-    <div class="settings-card">
-      <h3>Density</h3>
-      <p>Use compact spacing to see more tasks at once.</p>
-      <mat-slide-toggle [(ngModel)]="settings.compactMode">Compact mode</mat-slide-toggle>
-    </div>
+      <p>Control when TaskFlow should notify you.</p>
+
+      <mat-slide-toggle [(ngModel)]="settings.notificationsEnabled" (ngModelChange)="markChanged()">
+        Enable in-app notifications
+      </mat-slide-toggle>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email digest</mat-label>
+        <mat-select [(ngModel)]="settings.emailDigest" (ngModelChange)="markChanged()" [disabled]="!settings.notificationsEnabled">
+          <mat-option value="never">Never</mat-option>
+          <mat-option value="daily">Daily summary</mat-option>
+          <mat-option value="weekly">Weekly summary</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+
+    <section class="settings-card">
+      <h3>Safety</h3>
+      <p>Prevent accidental session actions.</p>
+
+      <mat-slide-toggle [(ngModel)]="settings.confirmBeforeLogout" (ngModelChange)="markChanged()">
+        Ask before logging out
+      </mat-slide-toggle>
+    </section>
   </div>
 
   @if (isSaved) {
     <div class="save-confirmation">
       <mat-icon>check_circle</mat-icon>
-      <span>Settings saved.</span>
+      <span>Settings saved and applied.</span>
     </div>
   }
 </div>

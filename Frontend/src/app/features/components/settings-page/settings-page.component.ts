@@ -1,51 +1,75 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
-interface AppSettings {
-  notificationsEnabled: boolean;
-  compactMode: boolean;
-}
-
-const DEFAULT_SETTINGS: AppSettings = {
-  notificationsEnabled: true,
-  compactMode: false
-};
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { Subject, takeUntil } from 'rxjs';
+import { AppSettings, DEFAULT_APP_SETTINGS } from '../../../core/models/app-settings.model';
+import { AppSettingsService } from '../../../core/services/app-settings.service';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatSlideToggleModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatSelectModule
+  ],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.scss'
 })
-export class SettingsPageComponent implements OnInit {
-  settings: AppSettings = { ...DEFAULT_SETTINGS };
+export class SettingsPageComponent implements OnInit, OnDestroy {
+  settings: AppSettings = { ...DEFAULT_APP_SETTINGS };
   isSaved = false;
+  hasUnsavedChanges = false;
+
+  private readonly destroy$ = new Subject<void>();
+
+  constructor(private readonly appSettings: AppSettingsService) {}
 
   ngOnInit(): void {
-    const stored = localStorage.getItem('taskflow-settings');
-    if (stored) {
-      try {
-        this.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-      } catch {
-        this.settings = { ...DEFAULT_SETTINGS };
-      }
-    }
+    this.appSettings.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        this.settings = { ...settings };
+        this.hasUnsavedChanges = false;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  markChanged(): void {
+    this.hasUnsavedChanges = true;
+    this.isSaved = false;
   }
 
   saveSettings(): void {
-    localStorage.setItem('taskflow-settings', JSON.stringify(this.settings));
+    this.appSettings.save(this.settings);
     this.isSaved = true;
+    this.hasUnsavedChanges = false;
+
     setTimeout(() => {
       this.isSaved = false;
-    }, 2000);
+    }, 2500);
   }
 
   resetSettings(): void {
-    this.settings = { ...DEFAULT_SETTINGS };
-    this.saveSettings();
+    this.settings = { ...DEFAULT_APP_SETTINGS };
+    this.markChanged();
+  }
+
+  restoreSavedSettings(): void {
+    this.settings = { ...this.appSettings.settings };
+    this.hasUnsavedChanges = false;
   }
 }

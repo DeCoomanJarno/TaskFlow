@@ -1,4 +1,4 @@
-<div class="app-wrapper">
+<div class="app-wrapper" [class.compact-mode]="appSettings.compactMode">
   <mat-toolbar class="app-toolbar">
     <div class="toolbar-content">
       <div class="brand">
@@ -55,14 +55,15 @@
             <span>Log in</span>
           </button>
         }
-        <!--
-          <button mat-icon-button class="toolbar-icon">
+        @if (appSettings.notificationsEnabled) {
+          <button
+            mat-icon-button
+            class="toolbar-icon"
+            title="Notifications"
+            aria-label="Notifications">
             <mat-icon>notifications</mat-icon>
           </button>
-          <button mat-icon-button class="toolbar-icon">
-            <mat-icon>settings</mat-icon>
-          </button>
-          -->
+        }
       </div>
     </div>
   </mat-toolbar>

@@ -306,3 +306,19 @@
     opacity: 1;
   }
 }
+
+.app-wrapper.compact-mode {
+  .app-content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .main-content,
+  .users-view {
+    padding: 1.25rem;
+  }
+
+  .app-toolbar {
+    height: 64px;
+  }
+}

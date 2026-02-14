@@ -14,6 +14,8 @@ import { Observable } from 'rxjs';
 import { User } from './core/models/user.model';
 import { AnalyticsPageComponent } from './features/components/analytics-page/analytics-page.component';
 import { SettingsPageComponent } from './features/components/settings-page/settings-page.component';
+import { AppSettingsService } from './core/services/app-settings.service';
+import { AppSettings } from './core/models/app-settings.model';
 
 @Component({
   selector: 'app-root',
@@ -37,12 +39,24 @@ export class AppComponent {
   title = 'task-manager-frontend';
   currentView: 'tasks' | 'users' | 'analytics' | 'settings' = 'tasks';
   currentUser$: Observable<User | null>;
+  appSettings: AppSettings;
 
   constructor(
     private dialog: MatDialog,
-    private auth: AuthService
+    private auth: AuthService,
+    private settingsService: AppSettingsService
   ) {
     this.currentUser$ = this.auth.currentUser$;
+    this.appSettings = this.settingsService.settings;
+    this.currentView = this.appSettings.defaultView;
+
+    this.settingsService.settings$.subscribe(settings => {
+      this.appSettings = settings;
+
+      if (this.currentView !== 'settings') {
+        this.currentView = settings.defaultView;
+      }
+    });
   }
   
   switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
@@ -56,6 +70,14 @@ export class AppComponent {
   }
 
   logout() {
+    if (this.appSettings.confirmBeforeLogout) {
+      const shouldLogout = window.confirm('Log out of TaskFlow now?');
+
+      if (!shouldLogout) {
+        return;
+      }
+    }
+
     this.auth.logout();
   }
 }
