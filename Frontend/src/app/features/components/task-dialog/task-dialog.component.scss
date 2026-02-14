@@ -101,51 +101,6 @@
     background: transparent !important;
   }
   
-  .mat-mdc-input-element,
-  .mat-mdc-select-value {
-    color: var(--text-primary) !important;
-  }
-  
-  .mat-mdc-form-field-label,
-  .mat-mdc-select-placeholder {
-    color: var(--text-secondary) !important;
-  }
-  
-  .mat-mdc-form-field-icon-prefix {
-    color: var(--text-tertiary) !important;
-    margin-right: 0.75rem;
-  }
-  
-  .mat-mdc-form-field.mat-focused {
-    .mat-mdc-form-field-outline {
-      color: var(--accent-blue) !important;
-    }
-    
-    .mat-mdc-form-field-label {
-      color: var(--accent-blue) !important;
-    }
-  }
-  
-  .mat-mdc-select-panel {
-    background: white !important;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-  }
-  
-  .mat-mdc-option {
-    color: var(--text-primary) !important;
-    background: white !important;
-    
-    &:hover {
-      background: var(--hover-bg) !important;
-    }
-    
-    &.mdc-list-item--selected {
-      background: rgba(37, 99, 235, 0.1) !important;
-      color: var(--accent-blue) !important;
-    }
-  }
-  
   textarea.mat-mdc-input-element {
     resize: vertical;
     min-height: 100px;

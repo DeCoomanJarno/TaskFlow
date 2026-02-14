@@ -55,21 +55,6 @@
   --mdc-outlined-text-field-container-shape: 12px;
   --mdc-outlined-text-field-container-height: 46px;
 
-  ::ng-deep .mat-mdc-form-field-infix {
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-    min-height: unset;
-  }
-
-  ::ng-deep .mat-mdc-select-trigger,
-  ::ng-deep .mat-mdc-input-element {
-    font-size: 0.95rem;
-  }
-
-  ::ng-deep .mat-mdc-floating-label {
-    font-size: 0.8rem;
-    letter-spacing: 0.01em;
-  }
 }
 
 .clear-filters {
@@ -522,12 +507,12 @@
 .task-description {
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  -webkit-line-clamp: 2
 }
 
 .task-meta {
@@ -608,7 +593,6 @@
   .task-description {
     margin: 0;
     font-size: 0.85rem;
-    -webkit-line-clamp: 1;
   }
 }
 

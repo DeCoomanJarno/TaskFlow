@@ -25,6 +25,7 @@ $danger: #EF4444;
   border-bottom: 1px solid rgba($secondary, 0.15);
   background: transparent;
 }
+
 .category-header {
   padding: 18px;
   background: transparent;
@@ -36,7 +37,7 @@ $danger: #EF4444;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
-  
+
   h2 {
     margin: 0;
     font-size: 18px;
@@ -44,7 +45,7 @@ $danger: #EF4444;
     color: $primary;
     letter-spacing: -0.01em;
   }
-  
+
   .count {
     font-size: 12px;
     font-weight: 600;
@@ -59,7 +60,7 @@ $danger: #EF4444;
 .search-wrap {
   position: relative;
   margin-bottom: 12px;
-  
+
   .search-icon {
     position: absolute;
     left: 12px;
@@ -68,7 +69,7 @@ $danger: #EF4444;
     color: $tertiary;
     pointer-events: none;
   }
-  
+
   .search-input {
     width: 100%;
     height: 40px;
@@ -79,16 +80,16 @@ $danger: #EF4444;
     color: $primary;
     background: #FFFFFF;
     transition: all 0.15s ease;
-    
+
     &::placeholder {
       color: $tertiary;
     }
-    
+
     &:hover {
       background: #FFFFFF;
       border-color: rgba($secondary, 0.35);
     }
-    
+
     &:focus {
       outline: none;
       background: #FFFFFF;
@@ -96,7 +97,7 @@ $danger: #EF4444;
       box-shadow: 0 0 0 3px rgba($accent, 0.12);
     }
   }
-  
+
   .clear-search {
     position: absolute;
     right: 8px;
@@ -116,7 +117,7 @@ $danger: #EF4444;
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease;
-    
+
     &:hover {
       color: $primary;
       background: rgba($primary, 0.06);
@@ -124,34 +125,44 @@ $danger: #EF4444;
   }
 }
 
+::ng-deep .project-filter {
+
+  .mat-mdc-select-arrow {
+    color: $secondary;
+    margin-right: 12px;
+  }
+}
+
 // Toolbar (Filter + Add)
 .toolbar {
   display: flex;
   gap: 8px;
-  
+
   .project-filter {
     height: 40px;
-    padding: 0 12px;
     border: 1px solid rgba($secondary, 0.2);
     border-radius: 10px;
     font-size: 13.5px;
     font-weight: 500;
     color: $primary;
-    appearance: none;
     cursor: pointer;
     transition: all 0.15s ease;
-    
+
+    appearance: auto;
+
+    display: flex;
+    align-items: center;
+
     &:hover {
       border-color: rgba($secondary, 0.35);
     }
-    
-    &:focus {
-      outline: none;
+
+    &:focus-within {
       border-color: $accent;
       box-shadow: 0 0 0 3px rgba($accent, 0.12);
     }
   }
-  
+
   .add-btn {
     width: 40px;
     height: 40px;
@@ -166,58 +177,14 @@ $danger: #EF4444;
     justify-content: center;
     flex-shrink: 0;
     transition: all 0.15s ease;
-    
+
     &:hover {
       background: $accent-light;
       transform: translateY(-1px);
     }
-    
+
     &:active {
       transform: translateY(0);
-    }
-  }
-}
-
-// Active Filter Chip
-.active-filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 6px 10px;
-  background: rgba($accent, 0.1);
-  border: 1px solid rgba($accent, 0.22);
-  border-radius: 999px;
-  
-  span {
-    flex: 1;
-    font-size: 12px;
-    font-weight: 500;
-    color: $accent;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  button {
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    background: none;
-    color: $accent;
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    flex-shrink: 0;
-    transition: all 0.15s ease;
-    
-    &:hover {
-      background: rgba($accent, 0.18);
     }
   }
 }
@@ -233,48 +200,70 @@ $danger: #EF4444;
 }
 
 .category {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
+
+  padding: 12px 14px 12px 18px;
   margin-bottom: 4px;
+
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.12s ease;
+  overflow: hidden;
+
+  background: transparent;
   border: 1px solid transparent;
-  
+  border-color: rgba($accent, 0.25);
+
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.12s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    left: 0;
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+
+    opacity: 1;
+  }
+
   &:hover {
     background: rgba($secondary, 0.08);
-    
+
     .actions {
       opacity: 1;
     }
   }
-  
+
   &.selected {
     background: rgba($accent, 0.1);
     border-color: rgba($accent, 0.22);
-    
+
     .name {
       color: $accent;
       font-weight: 600;
     }
-    
+
     .actions {
       opacity: 1;
     }
+
+    &::before {
+      background: linear-gradient(180deg, #10b981, #059669);
+    }
   }
-  
+
   &.inactive {
     opacity: 0.5;
     cursor: default;
-    
-    &:hover {
-      background: transparent;
-      
-      .actions {
-        opacity: 0;
-      }
+
+    &::before {
+      opacity: 0;
     }
   }
 }
@@ -297,9 +286,20 @@ $danger: #EF4444;
 
 .meta {
   display: flex;
-  align-items: center;
   gap: 6px;
-  
+  flex-wrap: wrap;
+
+  .project {
+    font-size: 11px;
+    font-weight: 600;
+    color: $secondary;
+    background: rgba($secondary, 0.12);
+    padding: 2px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
   .badge {
     padding: 3px 6px;
     border-radius: 999px;
@@ -310,18 +310,24 @@ $danger: #EF4444;
     background: rgba($danger, 0.1);
     color: $danger;
   }
-  
-  .id {
+
+  .description {
     font-size: 11px;
     color: $tertiary;
     font-family: 'SF Mono', 'Monaco', monospace;
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2
   }
 }
 
 .actions {
   opacity: 0;
   transition: opacity 0.12s ease;
-  
+
   .menu-btn {
     width: 24px;
     height: 24px;
@@ -335,7 +341,7 @@ $danger: #EF4444;
     justify-content: center;
     border-radius: 8px;
     transition: all 0.12s ease;
-    
+
     &:hover {
       background: rgba($primary, 0.06);
       color: $primary;
@@ -354,27 +360,27 @@ $danger: #EF4444;
   justify-content: center;
   padding: 48px 20px;
   text-align: center;
-  
+
   svg {
     margin-bottom: 16px;
     color: $tertiary;
     opacity: 0.4;
   }
-  
+
   h3 {
     margin: 0 0 6px 0;
     font-size: 15px;
     font-weight: 600;
     color: $primary;
   }
-  
+
   p {
     margin: 0 0 20px 0;
     font-size: 13px;
     color: $secondary;
     line-height: 1.5;
   }
-  
+
   .create-btn {
     height: 36px;
     padding: 0 18px;
@@ -386,13 +392,13 @@ $danger: #EF4444;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease;
-    
+
     &:hover {
       background: $accent-light;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba($accent, 0.2);
     }
-    
+
     &:active {
       transform: translateY(0);
     }
@@ -408,48 +414,48 @@ $danger: #EF4444;
     padding: 6px !important;
     min-width: 180px !important;
   }
-  
+
   .mat-mdc-menu-item {
     min-height: 34px !important;
     font-size: 13px !important;
     border-radius: 5px !important;
     padding: 0 10px !important;
     margin-bottom: 2px !important;
-    
+
     &:last-child {
       margin-bottom: 0 !important;
     }
-    
+
     svg {
       margin-right: 10px;
       color: $secondary;
       flex-shrink: 0;
     }
-    
+
     span {
       font-weight: 500;
       color: $primary;
     }
-    
+
     &:hover {
       background: $surface !important;
-      
+
       svg {
         color: $accent;
       }
     }
-    
+
     &.danger {
       span {
         color: $danger;
       }
-      
+
       &:hover {
         background: rgba($danger, 0.06) !important;
       }
     }
   }
-  
+
   .divider {
     height: 1px;
     background: $border;
@@ -464,19 +470,19 @@ $danger: #EF4444;
 .categories {
   scrollbar-width: thin;
   scrollbar-color: $border transparent;
-  
+
   &::-webkit-scrollbar {
     width: 5px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: $border;
     border-radius: 3px;
-    
+
     &:hover {
       background: $tertiary;
     }
@@ -491,19 +497,19 @@ $danger: #EF4444;
   .sidebar-header {
     padding: 16px 12px;
   }
-  
+
   .header-top h2 {
     font-size: 16px;
   }
-  
+
   .search-input {
     font-size: 12px;
   }
-  
+
   .categories {
     padding: 4px 6px 8px 6px;
   }
-  
+
   .category {
     padding: 9px 10px;
   }

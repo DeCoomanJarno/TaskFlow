@@ -2,33 +2,40 @@
 
 <mat-dialog-content>
   <form [formGroup]="categoryForm" class="project-form">
+    <div class="icon-select">
+      <span class="icon-label">Icon</span>
+
+  <button
+    type="button"
+    class="icon-preview"
+    (click)="openIconPicker()">
+    <mat-icon>{{ categoryForm.value.iconId }}</mat-icon>
+    <span>Choose icon</span>
+  </button>
+    </div>
 
     <mat-form-field appearance="outline">
       <mat-label>Category Name</mat-label>
       <input matInput formControlName="name" placeholder="Enter category name" required>
       @if (categoryForm.get('name')?.hasError('required') && categoryForm.get('name')?.touched) {
-        <mat-error>Category name is required</mat-error>
+      <mat-error>Category name is required</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Description</mat-label>
-      <textarea 
-        matInput 
-        formControlName="description" 
-        placeholder="Enter category description"
-        rows="3"></textarea>
+      <textarea matInput formControlName="description" placeholder="Enter category description" rows="3"></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Project</mat-label>
       <mat-select formControlName="projectId" required>
         @for (project of projects; track project.id) {
-          <mat-option [value]="project.id">{{ project.name }}</mat-option>
+        <mat-option [value]="project.id">{{ project.name }}</mat-option>
         }
       </mat-select>
       @if (categoryForm.get('projectId')?.hasError('required') && categoryForm.get('projectId')?.touched) {
-        <mat-error>Project is required</mat-error>
+      <mat-error>Project is required</mat-error>
       }
     </mat-form-field>
 
@@ -40,11 +47,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button 
-    mat-raised-button 
-    color="primary" 
-    (click)="onSave()"
-    [disabled]="!categoryForm.valid">
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!categoryForm.valid">
     {{ isEditMode ? 'Update' : 'Create' }}
   </button>
 </mat-dialog-actions>

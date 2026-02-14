@@ -428,4 +428,4 @@ FodyWeavers.xsd
 *.msp
 
 # DB
-.db*
+*.db*

@@ -31,7 +31,8 @@ namespace TaskProxyApi.Migrations
                     Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IconId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -4,4 +4,5 @@ export interface Category {
   description?: string;
   isActive: boolean;
   projectId: number;
+  iconId: string;
 }

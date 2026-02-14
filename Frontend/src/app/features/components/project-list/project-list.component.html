@@ -1,95 +1,91 @@
 <div class="project-list">
-  <!-- Compact Sidebar Header -->
+
   <div class="sidebar-header">
     <div class="header-top">
       <h2>Projects</h2>
       <span class="count">{{ projects.length }} projects</span>
     </div>
+
     <div class="toolbar">
-      <mat-select [(ngModel)]="selectedProjectId" (change)="loadCategories()" class="project-filter">
+      <mat-select [(ngModel)]="selectedProjectId" class="project-filter">
         <mat-option [value]="null">All Projects</mat-option>
         @for (project of projects; track project.id) {
-          <mat-option [value]="project.id">{{ project.name }}</mat-option>
+        <mat-option [value]="project.id">{{ project.name }}</mat-option>
         }
       </mat-select>
-      
-      <button class="add-btn" [matMenuTriggerFor]="createMenu">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
+
+      <button class="add-btn" [matMenuTriggerFor]="createMenu">+</button>
     </div>
 
     <mat-menu #createMenu="matMenu" class="sidebar-menu">
       <button mat-menu-item (click)="openCreateProjectDialog()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V9C21 7.89543 20.1046 7 19 7H13L11 5H5C3.89543 5 3 5.89543 3 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>New Project</span>
+        <mat-icon>folder</mat-icon>
+        <span>Create project</span>
       </button>
       <button mat-menu-item (click)="openCreateCategoryDialog()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="13" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="3" y="13" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="13" y="13" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>New Category</span>
+        <mat-icon>category</mat-icon>
+        <span>Create category</span>
       </button>
     </mat-menu>
   </div>
-      <div class="category-header">
-<div class="header-top">
+
+  <div class="category-header">
+    <div class="header-top">
       <h2>Categories</h2>
 
-      <span class="count">{{ filteredCategories.length }} {{filteredCategories.length == 1 ? 'category' : 'categories'}}</span>
+      <span class="count">{{ filteredCategories.length }} {{filteredCategories.length == 1 ? 'category' :
+        'categories'}}</span>
     </div>
-    
-    
+
+
     <div class="search-wrap">
       <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path
+          d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
       </svg>
-      <input 
-        type="text" 
-        [(ngModel)]="searchText"
-        placeholder="Search"
-        class="search-input">
+      <input type="text" [(ngModel)]="searchText" placeholder="Search" class="search-input">
       @if (searchText) {
-        <button class="clear-search" (click)="clearSearch()">×</button>
+      <button class="clear-search" (click)="clearSearch()">×</button>
       }
     </div>
 
 
-  <div class="categories">
-    @for (category of filteredCategories; track category.id) {
-      <div 
-        class="category"
-        [class.selected]="isSelected(category)"
-        [class.inactive]="!category.isActive"
+    <div class="categories">
+      @for (category of filteredCategories; track category.id) {
+      <div class="category" [class.selected]="isSelected(category)" [class.inactive]="!category.isActive"
         (click)="selectCategory(category)">
-        
         <div class="category-info">
-          <div class="name">{{ category.name }}</div>
-          @if (!category.isActive || category.id) {
-            <div class="meta">
-              @if (!category.isActive) {
-                <span class="badge">Inactive</span>
-              }
-              @if (category.id) {
-                <span class="id">{{ category.id }}</span>
-              }
-            </div>
-          }
+          <div class="meta">
+            <mat-icon>{{ category.iconId === '' ? 'category' : category.iconId }}</mat-icon>
+            <div class="name">{{ category.name }}</div>
+          </div>
+
+          <div class="meta">
+            @if (!category.isActive) {
+            <span class="badge">Inactive</span>
+            }
+
+            @if (selectedProjectId == null) {
+            <span class="project">
+              {{ getProjectName(category.projectId) }}
+            </span>
+            }
+            @if(category.description)
+            {
+            <span class="description">{{ category.description }}</span>
+            }
+
+          </div>
         </div>
 
         <div class="actions" (click)="$event.stopPropagation()">
           <button class="menu-btn" [matMenuTriggerFor]="catMenu">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="3" r="1.2" fill="currentColor"/>
-              <circle cx="8" cy="8" r="1.2" fill="currentColor"/>
-              <circle cx="8" cy="13" r="1.2" fill="currentColor"/>
+              <circle cx="8" cy="3" r="1.2" fill="currentColor" />
+              <circle cx="8" cy="8" r="1.2" fill="currentColor" />
+              <circle cx="8" cy="13" r="1.2" fill="currentColor" />
             </svg>
           </button>
           <mat-menu #catMenu="matMenu" class="sidebar-menu">
@@ -106,23 +102,25 @@
           </mat-menu>
         </div>
       </div>
-    }
+      }
 
-    @if (filteredCategories.length === 0) {
+      @if (filteredCategories.length === 0) {
       <div class="empty">
         <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
-          <path d="M8 18L24 8L40 18V38C40 39.1046 39.1046 40 38 40H10C8.89543 40 8 39.1046 8 38V18Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M18 40V24H30V40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 18L24 8L40 18V38C40 39.1046 39.1046 40 38 40H10C8.89543 40 8 39.1046 8 38V18Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M18 40V24H30V40" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
         <h3>{{ searchText || selectedProjectName ? 'No matches' : 'No categories' }}</h3>
         <p>{{ searchText || selectedProjectName ? 'Try different filters' : 'Create one to start' }}</p>
         @if (!searchText && !selectedProjectName) {
-          <button class="create-btn" (click)="openCreateCategoryDialog()">
-            Create Category
-          </button>
+        <button class="create-btn" (click)="openCreateCategoryDialog()">
+          Create Category
+        </button>
         }
       </div>
-    }
-  </div>
+      }
+    </div>
   </div>
 </div>

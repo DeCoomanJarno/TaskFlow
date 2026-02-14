@@ -43,25 +43,3 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
 }
-
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
-[tabindex]:focus-visible {
-  outline: none;
-  border-radius: 8px;
-}
-
-.mat-mdc-card {
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-}
-
-.mat-mdc-button,
-.mat-mdc-raised-button,
-.mat-mdc-outlined-button,
-.mat-mdc-unelevated-button {
-  border-radius: 999px;
-}
