@@ -78,11 +78,43 @@ TaskFlow/
 
 ## Screenshots
 
-### Application Branding / UI Theme
+This repository currently does **not** include runtime product screenshots from a live environment.
 
-![TaskFlow UI](Frontend/src/assets/taskflow.png)
+Use the placeholders below as a capture checklist. Replace each line with an actual image once available.
 
-> Tip: after running both apps locally, you can capture additional UI screenshots from the task board, analytics, and settings pages for your own deployment documentation.
+- [Screenshot 1 — Main Tasks Workspace]
+  - Capture the default **Tasks** view after login.
+  - Include the top navigation, project sidebar, category list, and empty-state panel.
+  - The image should clearly show where users begin organizing work.
+
+- [Screenshot 2 — Create Project Dialog]
+  - Open the "create project" dialog from the Projects section.
+  - Fill sample values (for example: project name **Project 1**, owner **User X**), without saving sensitive data.
+  - Ensure all form fields and validation messages (if any) are visible.
+
+- [Screenshot 3 — Category and Task Board Populated]
+  - Show a project with at least one category selected and multiple tasks visible.
+  - Include examples of different task states/columns so flow is clear.
+  - Prefer sample tasks like "Design UI", "Implement API", "QA Review".
+
+- [Screenshot 4 — Task Details + Comments]
+  - Open a task detail dialog/panel.
+  - Show assignee/owner, status, and comments thread section.
+  - Include at least one comment to demonstrate collaboration behavior.
+
+- [Screenshot 5 — User Management View]
+  - Switch to the **Users** tab and capture the user management page.
+  - Ensure user list and key actions (create/delete/view) are visible.
+
+- [Screenshot 6 — Analytics View]
+  - Switch to **Analytics** and capture the full page.
+  - Include charts/cards/metrics area so stakeholders can see reporting capabilities.
+
+- [Screenshot 7 — Settings View]
+  - Switch to **Settings** and capture options such as compact mode and notifications.
+  - Include toggles and any save/apply controls.
+
+> Suggested naming convention: `docs/screenshots/01-tasks-overview.png`, `02-create-project-dialog.png`, etc.
 
 ---
 
@@ -280,10 +312,3 @@ dotnet test
 - CI pipeline with lint/test/build gates
 - Docker compose setup for one-command startup
 
----
-
-If you want, I can also generate:
-
-1. A **Contributing Guide** (`CONTRIBUTING.md`)
-2. A **deployment-focused README** (Docker + production checklist)
-3. An **API contract document** with request/response examples per endpoint.
