@@ -14,6 +14,11 @@ import { Observable } from 'rxjs';
 import { User } from './core/models/user.model';
 import { AnalyticsPageComponent } from './features/components/analytics-page/analytics-page.component';
 import { SettingsPageComponent } from './features/components/settings-page/settings-page.component';
+import { AppSettingsService } from './core/services/app-settings.service';
+import { AppSettings } from './core/models/app-settings.model';
+import { AppNotification, NotificationService } from './core/services/notification.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +33,9 @@ import { SettingsPageComponent } from './features/components/settings-page/setti
     MatButtonModule,
     MatDialogModule,
     AnalyticsPageComponent,
-    SettingsPageComponent
+    SettingsPageComponent,
+    MatMenuModule,
+    MatBadgeModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -37,14 +44,35 @@ export class AppComponent {
   title = 'task-manager-frontend';
   currentView: 'tasks' | 'users' | 'analytics' | 'settings' = 'tasks';
   currentUser$: Observable<User | null>;
+  appSettings: AppSettings;
+  notifications$: Observable<AppNotification[]>;
+  unreadCount$: Observable<number>;
 
   constructor(
     private dialog: MatDialog,
-    private auth: AuthService
+    private auth: AuthService,
+    private settingsService: AppSettingsService,
+    private notificationsService: NotificationService
   ) {
     this.currentUser$ = this.auth.currentUser$;
+    this.notifications$ = this.notificationsService.notifications$;
+    this.unreadCount$ = this.notificationsService.unreadCount$;
+    this.appSettings = this.settingsService.settings;
+    this.currentView = this.appSettings.defaultView;
+
+    this.settingsService.settings$.subscribe(settings => {
+      this.appSettings = settings;
+
+      if (!settings.notificationsEnabled) {
+        this.notificationsService.markAllRead();
+      }
+
+      if (this.currentView !== 'settings') {
+        this.currentView = settings.defaultView;
+      }
+    });
   }
-  
+
   switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
     this.currentView = view;
   }
@@ -53,9 +81,37 @@ export class AppComponent {
     this.dialog.open(LoginDialogComponent, {
       width: '400px'
     });
+
+    if (this.appSettings.notificationsEnabled) {
+      this.notificationsService.notify('Login dialog opened.');
+    }
+  }
+
+  markNotificationsRead(): void {
+    this.notificationsService.markAllRead();
+  }
+
+  clearNotifications(): void {
+    this.notificationsService.clear();
+  }
+
+  removeNotification(notificationId: number): void {
+    this.notificationsService.remove(notificationId);
   }
 
   logout() {
+    if (this.appSettings.confirmBeforeLogout) {
+      const shouldLogout = window.confirm('Log out of TaskFlow now?');
+
+      if (!shouldLogout) {
+        return;
+      }
+    }
+
     this.auth.logout();
+
+    if (this.appSettings.notificationsEnabled) {
+      this.notificationsService.notify('You have been logged out.');
+    }
   }
 }

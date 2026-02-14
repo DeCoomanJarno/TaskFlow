@@ -1,0 +1,11 @@
+<div class="toast-wrap">
+  <div class="content">
+    <p class="message">{{ data.message }}</p>
+    <span class="timer">Auto-close in {{ secondsRemaining }}s</span>
+  </div>
+
+  <div class="actions">
+    <button mat-button type="button" (click)="snooze()">Snooze</button>
+    <button mat-button type="button" (click)="remove()">Remove</button>
+  </div>
+</div>

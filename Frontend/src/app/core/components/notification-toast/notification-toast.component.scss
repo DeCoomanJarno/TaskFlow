@@ -1,0 +1,28 @@
+.toast-wrap {
+  min-width: 340px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  .message {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .timer {
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+}

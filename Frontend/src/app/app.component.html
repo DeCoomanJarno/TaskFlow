@@ -1,4 +1,4 @@
-<div class="app-wrapper">
+<div class="app-wrapper" [class.compact-mode]="appSettings.compactMode">
   <mat-toolbar class="app-toolbar">
     <div class="toolbar-content">
       <div class="brand">
@@ -55,17 +55,50 @@
             <span>Log in</span>
           </button>
         }
-        <!--
-          <button mat-icon-button class="toolbar-icon">
+        @if (appSettings.notificationsEnabled) {
+          <button
+            mat-icon-button
+            class="toolbar-icon"
+            [matMenuTriggerFor]="notificationsMenu"
+            title="Notifications"
+            aria-label="Notifications"
+            (menuOpened)="markNotificationsRead()"
+            [matBadge]="(unreadCount$ | async) ?? 0"
+            [matBadgeHidden]="((unreadCount$ | async) ?? 0) === 0"
+            matBadgeColor="warn"
+            matBadgeSize="small">
             <mat-icon>notifications</mat-icon>
           </button>
-          <button mat-icon-button class="toolbar-icon">
-            <mat-icon>settings</mat-icon>
-          </button>
-          -->
+        }
       </div>
     </div>
   </mat-toolbar>
+
+  <mat-menu #notificationsMenu="matMenu">
+    <button mat-menu-item disabled>
+      <strong>Notifications</strong>
+    </button>
+
+    @if (notifications$ | async; as notifications) {
+      @if (notifications.length === 0) {
+        <button mat-menu-item disabled>
+          <span>No notifications yet</span>
+        </button>
+      } @else {
+        @for (notification of notifications; track notification.id) {
+          <button mat-menu-item>
+            <span>{{ notification.message }}</span>
+            <span class="menu-item-spacer"></span>
+            <mat-icon (click)="$event.stopPropagation(); removeNotification(notification.id)">close</mat-icon>
+          </button>
+        }
+        <button mat-menu-item (click)="clearNotifications()">
+          <mat-icon>delete_sweep</mat-icon>
+          <span>Clear all</span>
+        </button>
+      }
+    }
+  </mat-menu>
 
   <div class="app-content">
     @if (currentView === 'tasks') {
@@ -98,4 +131,4 @@
       </div>
     }
   </div>
-  </div>
+</div>
