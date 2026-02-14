@@ -78,43 +78,31 @@ TaskFlow/
 
 ## Screenshots
 
-This repository currently does **not** include runtime product screenshots from a live environment.
+# Overview
+<img width="1384" height="477" alt="image" src="https://github.com/user-attachments/assets/cbce7cdb-b919-42fb-94c0-62ccf29dadb4" />
+<img width="1404" height="755" alt="image" src="https://github.com/user-attachments/assets/e11a6fe4-6505-4d68-a452-f4e9347ce62a" />
+<img width="1391" height="519" alt="image" src="https://github.com/user-attachments/assets/b7432007-1de9-4648-9c83-f09e19239576" />
+<img width="2441" height="1283" alt="image" src="https://github.com/user-attachments/assets/6b382960-e513-4d26-b5e5-4d54b2f35772" />
 
-Use the placeholders below as a capture checklist. Replace each line with an actual image once available.
+# Create Dialogs
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/52e069dc-11e9-4371-9d00-5ddf4ff3e15a" />
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/2dbb084e-ceff-4d80-933f-0da0960c8400" />
+<img width="405" height="245" alt="image" src="https://github.com/user-attachments/assets/2af5136c-30a3-43bf-9dae-bb8b7b65c83c" />
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/a7650d3d-3b08-4677-906d-3ce599148a4e" />
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/2eb1f667-01c5-4828-8508-6470930d8b02" />
 
-- [Screenshot 1 — Main Tasks Workspace]
-  - Capture the default **Tasks** view after login.
-  - Include the top navigation, project sidebar, category list, and empty-state panel.
-  - The image should clearly show where users begin organizing work.
+# Analystics page
+<img width="1255" height="415" alt="image" src="https://github.com/user-attachments/assets/6306384b-a51c-47b2-98a5-7d79fc684eb5" />
 
-- [Screenshot 2 — Create Project Dialog]
-  - Open the "create project" dialog from the Projects section.
-  - Fill sample values (for example: project name **Project 1**, owner **User X**), without saving sensitive data.
-  - Ensure all form fields and validation messages (if any) are visible.
+# Settings page
+<img width="1061" height="405" alt="image" src="https://github.com/user-attachments/assets/f317dd97-a5cb-4c7a-b10e-ce2ba4837d93" />
 
-- [Screenshot 3 — Category and Task Board Populated]
-  - Show a project with at least one category selected and multiple tasks visible.
-  - Include examples of different task states/columns so flow is clear.
-  - Prefer sample tasks like "Design UI", "Implement API", "QA Review".
+# User Management
+<img width="1449" height="433" alt="image" src="https://github.com/user-attachments/assets/9eb016c3-5bed-46b5-80e6-eaf292682813" />
 
-- [Screenshot 4 — Task Details + Comments]
-  - Open a task detail dialog/panel.
-  - Show assignee/owner, status, and comments thread section.
-  - Include at least one comment to demonstrate collaboration behavior.
+# Notifications
+<img width="375" height="75" alt="image" src="https://github.com/user-attachments/assets/7b307108-3c9e-4bf3-9c5c-85014ae25db0" />
 
-- [Screenshot 5 — User Management View]
-  - Switch to the **Users** tab and capture the user management page.
-  - Ensure user list and key actions (create/delete/view) are visible.
-
-- [Screenshot 6 — Analytics View]
-  - Switch to **Analytics** and capture the full page.
-  - Include charts/cards/metrics area so stakeholders can see reporting capabilities.
-
-- [Screenshot 7 — Settings View]
-  - Switch to **Settings** and capture options such as compact mode and notifications.
-  - Include toggles and any save/apply controls.
-
-> Suggested naming convention: `docs/screenshots/01-tasks-overview.png`, `02-create-project-dialog.png`, etc.
 
 ---
 
