@@ -75,10 +75,6 @@ export class AppComponent {
 
   switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
     this.currentView = view;
-
-    if (view !== 'settings' && this.appSettings.notificationsEnabled) {
-      this.notificationsService.notify(`Switched to ${view} view.`);
-    }
   }
 
   openLogin() {
