@@ -43,3 +43,10 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
 }
+.taskflow-toast {
+  .mat-mdc-snackbar-surface {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    border-radius: 14px !important;
+  }
+}

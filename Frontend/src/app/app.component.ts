@@ -75,12 +75,20 @@ export class AppComponent {
 
   switchView(view: 'tasks' | 'users' | 'analytics' | 'settings') {
     this.currentView = view;
+
+    if (view !== 'settings' && this.appSettings.notificationsEnabled) {
+      this.notificationsService.notify(`Switched to ${view} view.`);
+    }
   }
 
   openLogin() {
     this.dialog.open(LoginDialogComponent, {
       width: '400px'
     });
+
+    if (this.appSettings.notificationsEnabled) {
+      this.notificationsService.notify('Login dialog opened.');
+    }
   }
 
   markNotificationsRead(): void {
@@ -89,6 +97,10 @@ export class AppComponent {
 
   clearNotifications(): void {
     this.notificationsService.clear();
+  }
+
+  removeNotification(notificationId: number): void {
+    this.notificationsService.remove(notificationId);
   }
 
   logout() {
@@ -101,5 +113,9 @@ export class AppComponent {
     }
 
     this.auth.logout();
+
+    if (this.appSettings.notificationsEnabled) {
+      this.notificationsService.notify('You have been logged out.');
+    }
   }
 }

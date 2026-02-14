@@ -75,10 +75,18 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   resetSettings(): void {
     this.settings = { ...DEFAULT_APP_SETTINGS };
     this.markChanged();
+
+    if (this.settings.notificationsEnabled) {
+      this.notifications.notify('Defaults loaded. Save to apply them.');
+    }
   }
 
   restoreSavedSettings(): void {
     this.settings = { ...this.appSettings.settings };
     this.hasUnsavedChanges = false;
+
+    if (this.settings.notificationsEnabled) {
+      this.notifications.notify('Unsaved changes were discarded.');
+    }
   }
 }

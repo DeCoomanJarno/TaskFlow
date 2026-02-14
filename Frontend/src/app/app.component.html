@@ -86,8 +86,10 @@
         </button>
       } @else {
         @for (notification of notifications; track notification.id) {
-          <button mat-menu-item disabled>
+          <button mat-menu-item>
             <span>{{ notification.message }}</span>
+            <span class="menu-item-spacer"></span>
+            <mat-icon (click)="$event.stopPropagation(); removeNotification(notification.id)">close</mat-icon>
           </button>
         }
         <button mat-menu-item (click)="clearNotifications()">
