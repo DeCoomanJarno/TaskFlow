@@ -20,8 +20,9 @@ import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-project-list',
+  standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     MatListModule,
     MatIconModule,
     MatButtonModule,
@@ -34,7 +35,7 @@ import { Subscription, interval } from 'rxjs';
     FormsModule
   ],
   templateUrl: './project-list.component.html',
-  styleUrl: './project-list.component.less'
+  styleUrl: './project-list.component.scss'
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
@@ -42,9 +43,12 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   selectedCategory?: Category;
   selectedProjectId: number | null = null;
   searchText = '';
+
   private refreshSubscription?: Subscription;
+  private projectOrder = new Map<number, number>();
+
   @Output() categorySelected = new EventEmitter<Category | undefined>();
- 
+
   constructor(
     private api: ApiService,
     private dialog: MatDialog
@@ -62,36 +66,58 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   load(): void {
     this.api.getProjects().subscribe(projects => {
       this.projects = projects;
+      this.buildProjectOrder();
       this.loadCategories();
     });
   }
 
   loadCategories(): void {
-    const projectId = this.selectedProjectId ?? undefined;
-    this.api.getCategories(projectId).subscribe(categories => {
+    this.api.getCategories().subscribe(categories => {
       this.categories = categories;
       this.ensureSelectionVisible();
     });
   }
 
+  private buildProjectOrder(): void {
+    this.projectOrder.clear();
+    this.projects.forEach((project, index) => {
+      this.projectOrder.set(project.id!, index);
+    });
+  }
+
   get filteredCategories(): Category[] {
     const search = this.searchText.trim().toLowerCase();
-    let categories = [...this.categories];
 
-    if (search) {
-      categories = categories.filter(category => {
+    return this.categories
+      .filter(category => {
+        if (this.selectedProjectId != null && category.projectId !== this.selectedProjectId) {
+          return false;
+        }
+
+        if (!search) return true;
+
         const name = category.name?.toLowerCase() ?? '';
         const description = category.description?.toLowerCase() ?? '';
         return name.includes(search) || description.includes(search);
-      });
-    }
+      })
+      .sort((a, b) => {
+        if (this.selectedProjectId == null) {
+          const pa = this.projectOrder.get(a.projectId) ?? 9999;
+          const pb = this.projectOrder.get(b.projectId) ?? 9999;
+          if (pa !== pb) return pa - pb;
+        }
 
-    return categories.sort((a, b) => a.name.localeCompare(b.name));
+        return a.name.localeCompare(b.name);
+      });
+  }
+
+  getProjectName(projectId: number): string {
+    return this.projects.find(p => p.id === projectId)?.name ?? 'Unknown project';
   }
 
   get selectedProjectName(): string | null {
     if (this.selectedProjectId == null) return null;
-    return this.projects.find(project => project.id === this.selectedProjectId)?.name ?? null;
+    return this.projects.find(p => p.id === this.selectedProjectId)?.name ?? null;
   }
 
   get activeCount(): number {
@@ -102,16 +128,11 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.searchText = '';
   }
 
-  clearProjectSelection(): void {
-    this.selectedProjectId = null;
-    this.loadCategories();
-  }
-
   ensureSelectionVisible(): void {
     if (!this.selectedCategory) return;
 
-    const isVisible = this.filteredCategories.some(category => category.id === this.selectedCategory?.id);
-    if (!isVisible) {
+    const visible = this.filteredCategories.some(c => c.id === this.selectedCategory?.id);
+    if (!visible) {
       this.selectedCategory = undefined;
       this.categorySelected.emit(undefined);
     }
@@ -128,16 +149,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   openCreateProjectDialog(): void {
-    const dialogRef = this.dialog.open(ProjectDialogComponent, {
-      width: '600px',
-      data: {}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.createProject(result);
-      }
-    });
+    const dialogRef = this.dialog.open(ProjectDialogComponent, { width: '600px' });
+    dialogRef.afterClosed().subscribe(result => result && this.createProject(result));
   }
 
   openCreateCategoryDialog(): void {
@@ -145,15 +158,11 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       width: '600px',
       data: {
         projects: this.projects,
-        defaultProjectId: this.selectedProjectId ?? (this.projects.length === 1 ? this.projects[0].id : null)
+        defaultProjectId: this.selectedProjectId
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.createCategory(result);
-      }
-    });
+    dialogRef.afterClosed().subscribe(result => result && this.createCategory(result));
   }
 
   openEditCategoryDialog(category: Category, event: Event): void {
@@ -161,107 +170,42 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(CategoryDialogComponent, {
       width: '600px',
-      data: {
-        category,
-        projects: this.projects
-      }
+      data: { category, projects: this.projects }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.updateCategory(result);
-      }
-    });
+    dialogRef.afterClosed().subscribe(result => result && this.updateCategory(result));
   }
 
   createProject(project: Project): void {
-    this.api.createProject(project).subscribe({
-      next: (response) => {
-        console.log('Project created:', response);
-        this.load();
-      },
-      error: (error) => {
-        console.error('Error creating project:', error);
-        alert('Failed to create project. Please try again.');
-      }
-    });
+    this.api.createProject(project).subscribe(() => this.load());
   }
 
   createCategory(category: Category): void {
-    this.api.createCategory(category).subscribe({
-      next: (response) => {
-        console.log('Category created:', response);
-        this.loadCategories();
-      },
-      error: (error) => {
-        console.error('Error creating category:', error);
-        alert('Failed to create category. Please try again.');
-      }
-    });
+    this.api.createCategory(category).subscribe(() => this.loadCategories());
   }
 
   updateCategory(category: Category): void {
     if (!category.id) return;
-
-    this.api.updateCategory(category.id, category).subscribe({
-      next: () => {
-        console.log('Category updated');
-        this.loadCategories();
-      },
-      error: (error) => {
-        console.error('Error updating category:', error);
-        alert('Failed to update category. Please try again.');
-      }
-    });
+    this.api.updateCategory(category.id, category).subscribe(() => this.loadCategories());
   }
 
   deleteCategory(category: Category, event: Event): void {
     event.stopPropagation();
-
     if (!category.id) return;
 
-    const confirmed = confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`);
-
-    if (confirmed) {
-      this.api.deleteCategory(category.id).subscribe({
-        next: () => {
-          console.log('Category deleted');
-
-          if (this.selectedCategory?.id === category.id) {
-            this.selectedCategory = undefined;
-            this.categorySelected.emit(undefined);
-          }
-
-          this.loadCategories();
-        },
-        error: (error) => {
-          console.error('Error deleting category:', error);
-          alert('Failed to delete category. Please try again.');
-        }
-      });
+    if (confirm(`Delete "${category.name}"?`)) {
+      this.api.deleteCategory(category.id).subscribe(() => this.loadCategories());
     }
   }
 
   toggleActive(category: Category, event: Event): void {
     event.stopPropagation();
-
     if (!category.id) return;
 
-    const updatedCategory = { ...category, isActive: !category.isActive };
-
-    this.api.updateCategory(category.id, updatedCategory).subscribe({
-      next: () => {
-        category.isActive = !category.isActive;
-
-        if (!category.isActive && this.selectedCategory?.id === category.id) {
-          this.selectedCategory = undefined;
-          this.categorySelected.emit(undefined);
-        }
-      },
-      error: (error) => {
-        console.error('Error toggling category status:', error);
-        alert('Failed to update category status. Please try again.');
-      }
+    const updated = { ...category, isActive: !category.isActive };
+    this.api.updateCategory(category.id, updated).subscribe(() => {
+      category.isActive = updated.isActive;
+      this.ensureSelectionVisible();
     });
   }
 }

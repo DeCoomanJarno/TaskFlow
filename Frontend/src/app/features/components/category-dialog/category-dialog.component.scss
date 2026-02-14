@@ -1,0 +1,55 @@
+ .project-form {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   min-width: 500px;
+   padding: 1rem 0;
+ }
+
+ mat-form-field {
+   width: 100%;
+ }
+
+ mat-slide-toggle {
+   margin-top: 0.5rem;
+ }
+
+ mat-dialog-content {
+   max-height: 70vh;
+   overflow-y: auto;
+ }
+.icon-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.icon-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.icon-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  background: #fff;
+  cursor: pointer;
+
+  transition: all 0.15s ease;
+
+  mat-icon {
+    color: #3B82F6;
+  }
+
+  &:hover {
+    border-color: #3B82F6;
+    background: rgba(59, 130, 246, 0.06);
+  }
+}

@@ -22,5 +22,6 @@ namespace TaskProxyApi.Models
         public Project? Project { get; set; } = null;
 
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public string IconId { get; set; } = string.Empty;
     }
 }

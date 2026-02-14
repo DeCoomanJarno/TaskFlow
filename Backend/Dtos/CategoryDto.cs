@@ -12,6 +12,7 @@ namespace TaskProxyApi.Dtos
             Description = category.Description;
             IsActive = category.IsActive;
             ProjectId = category.ProjectId;
+            IconId = category.IconId;
         }
 
         public int Id { get; set; }
@@ -25,5 +26,6 @@ namespace TaskProxyApi.Dtos
         public bool IsActive { get; set; } = true;
 
         public int ProjectId { get; set; }
+        public string IconId { get; set; } = string.Empty;
     }
 }

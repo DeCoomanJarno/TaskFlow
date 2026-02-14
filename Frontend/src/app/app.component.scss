@@ -3,7 +3,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  background: #f5f7fb;
   
   &::before {
     content: '';
@@ -13,23 +13,24 @@
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.04) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.03) 0%, transparent 50%);
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 45%),
+      radial-gradient(circle at 80% 20%, rgba(148, 163, 184, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
 }
 
 .app-toolbar {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 70px;
-  padding: 0 2rem;
+  height: 72px;
+  padding: 0 2.5rem;
   
   .toolbar-content {
     width: 100%;
@@ -43,17 +44,17 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-weight: 800;
-    font-size: 1.5rem;
+    font-weight: 700;
+    font-size: 1.4rem;
     color: var(--text-primary);
     letter-spacing: -0.02em;
     
     .brand-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
       color: var(--accent-blue);
-      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+      filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.2));
     }
     
     .brand-name {
@@ -74,13 +75,14 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
       color: var(--text-secondary);
       transition: var(--transition);
       position: relative;
       overflow: hidden;
+      border: 1px solid transparent;
       
       mat-icon {
         font-size: 20px;
@@ -92,8 +94,8 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-        opacity: 0;
+        opacity: 1;
+        transform: scale(0.85);
         transition: var(--transition);
       }
       
@@ -104,14 +106,17 @@
       
       &:hover {
         color: var(--text-primary);
-        background: var(--hover-bg);
+        border-color: rgba(148, 163, 184, 0.35);
+        background: rgba(248, 250, 252, 0.9);
       }
       
       &.active {
-        color: white;
+        color: var(--accent-blue);
+        border-color: rgba(59, 130, 246, 0.3);
         
         &::before {
-          opacity: 1;
+          background: rgba(59, 130, 246, 0.12);
+          transform: scale(1);
         }
       }
     }
@@ -129,6 +134,8 @@
       border-radius: 999px;
       font-weight: 600;
       text-transform: none;
+      padding: 0 1.1rem;
+      height: 40px;
     }
     
     .toolbar-icon {
@@ -137,7 +144,7 @@
       
       &:hover {
         color: var(--accent-blue);
-        background: var(--hover-bg);
+        background: rgba(59, 130, 246, 0.08);
       }
 
       &.active {
@@ -153,22 +160,26 @@
   display: flex;
   position: relative;
   z-index: 1;
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
 .sidenav-container {
   width: 100%;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 72px - 3rem);
   background: transparent !important;
 }
 
 .project-sidebar {
-  background: rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(12px);
-  border-right: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  margin-right: 0;
   
   .sidebar-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     
     h2 {
       margin: 0;
@@ -181,9 +192,12 @@
 }
 
 .main-content {
-  background: transparent !important;
-  padding: 2rem;
+  background: rgba(255, 255, 255, 0.85) !important;
+  padding: 2rem 2.5rem;
   overflow-y: auto;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -198,7 +212,7 @@
     border-radius: 4px;
     
     &:hover {
-      background: var(--primary-light);
+      background: rgba(148, 163, 184, 0.6);
     }
   }
 }
@@ -207,6 +221,10 @@
   width: 100%;
   padding: 2rem;
   overflow-y: auto;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
   
   &::-webkit-scrollbar {
     width: 8px;
@@ -221,7 +239,7 @@
     border-radius: 4px;
     
     &:hover {
-      background: var(--primary-light);
+      background: rgba(148, 163, 184, 0.6);
     }
   }
 }
@@ -252,58 +270,19 @@
   .toolbar-actions {
     order: 2;
   }
+
+  .app-content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .main-content,
+  .users-view,
+  .project-sidebar {
+    border-radius: 18px;
+  }
 }
 
-// Global Material overrides
-::ng-deep {
-  .mat-mdc-dialog-container {
-    --mdc-dialog-container-color: var(--card-bg);
-    --mdc-dialog-subhead-color: var(--text-primary);
-    border-radius: 16px !important;
-    box-shadow: var(--shadow-lg) !important;
-  }
-  
-  .mat-mdc-form-field {
-    width: 100%;
-  }
-  
-  .mat-mdc-text-field-wrapper {
-    background: var(--primary-medium) !important;
-  }
-  
-  .mat-mdc-form-field-focus-overlay {
-    background: transparent !important;
-  }
-  
-  .mdc-text-field--filled {
-    background: var(--primary-medium) !important;
-  }
-  
-  .mat-mdc-input-element {
-    color: var(--text-primary) !important;
-  }
-  
-  .mat-mdc-form-field-label {
-    color: var(--text-secondary) !important;
-  }
-  
-  .mat-mdc-select-value {
-    color: var(--text-primary) !important;
-  }
-  
-  .mat-mdc-option {
-    color: var(--text-primary) !important;
-    background: white !important;
-  }
-  
-  .mat-mdc-option.mdc-list-item--selected {
-    background: rgba(37, 99, 235, 0.1) !important;
-  }
-  
-  .mat-mdc-select-panel {
-    background: white !important;
-  }
-}
 
 // Animations
 @keyframes fadeIn {

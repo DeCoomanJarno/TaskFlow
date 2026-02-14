@@ -1,0 +1,39 @@
+.search {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: background 0.12s ease;
+
+  mat-icon {
+    font-size: 22px;
+    color: #475569;
+  }
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.12);
+    mat-icon {
+      color: #3B82F6;
+    }
+  }
+}

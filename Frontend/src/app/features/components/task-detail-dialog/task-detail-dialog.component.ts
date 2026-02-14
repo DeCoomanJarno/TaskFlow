@@ -29,7 +29,7 @@ export interface TaskDetailDialogData {
     ReactiveFormsModule
   ],
   templateUrl: './task-detail-dialog.component.html',
-  styleUrl: './task-detail-dialog.component.less'
+  styleUrl: './task-detail-dialog.component.scss'
 })
 export class TaskDetailDialogComponent implements OnInit {
   commentForm!: FormGroup;

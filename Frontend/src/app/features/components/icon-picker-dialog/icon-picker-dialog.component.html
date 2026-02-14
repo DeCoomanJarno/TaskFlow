@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Select icon</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="search">
+    <mat-label>Search icons</mat-label>
+    <input matInput [(ngModel)]="search">
+  </mat-form-field>
+
+  <div class="icon-grid">
+    @for (icon of filteredIcons; track icon) {
+      <button
+        class="icon-btn"
+        (click)="select(icon)">
+        <mat-icon>{{ icon }}</mat-icon>
+      </button>
+    }
+  </div>
+</mat-dialog-content>

@@ -26,7 +26,7 @@ export interface UserDialogData {
     ReactiveFormsModule
   ],
   templateUrl: './user-dialog.component.html',
-  styleUrl: './user-dialog.component.less'
+  styleUrl: './user-dialog.component.scss'
 })
 export class UserDialogComponent implements OnInit {
   userForm!: FormGroup;
